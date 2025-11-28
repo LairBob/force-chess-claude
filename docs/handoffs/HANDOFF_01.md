@@ -1,5 +1,22 @@
 # HANDOFF_01 - Phase 0: Project Foundation
 
+## Quick Start for Next Instance
+```bash
+cd C:/dev/force-chess-claude
+npm install
+npm run test:run  # Verify 8 tests pass
+npm run dev       # Start dev server
+```
+
+**Read these files first:**
+1. This handoff document
+2. `docs/CLAUDE_PROJECT_GUIDELINES.md` (token management protocol)
+3. `PROJECT_PROGRESS.json` (current phase status)
+4. `docs/research/chess-logic.md` (for Phase 1)
+5. `docs/research/ui-ux-guidelines.md` (for Phase 1)
+
+---
+
 ## Session Summary
 - **Session ID**: session-01
 - **Phase**: Phase 0 - Project Foundation
@@ -144,7 +161,13 @@ Build verified: Production build completes successfully.
 
 ## References
 - Plan file: `.claude/plans/happy-leaping-shell.md`
+- Claude guidelines: `docs/CLAUDE_PROJECT_GUIDELINES.md`
 - Research docs: `docs/research/`
 - Project charter: `docs/charter/PROJECT_CHARTER.json`
 - react-chessboard: https://github.com/Clariity/react-chessboard
 - chess.js: https://github.com/jhlywa/chess.js
+
+---
+
+## Token Management Reminder
+**IMPORTANT**: Monitor token consumption throughout your session. Initiate pause protocol at 75% consumption. See `docs/CLAUDE_PROJECT_GUIDELINES.md` for full protocol.
