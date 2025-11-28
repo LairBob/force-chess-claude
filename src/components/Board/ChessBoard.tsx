@@ -1,6 +1,5 @@
-import { Chessboard, type ChessboardOptions } from 'react-chessboard'
+import { Chessboard } from 'react-chessboard'
 import type { Square } from 'chess.js'
-import type { PieceDropHandlerArgs, SquareHandlerArgs, PieceHandlerArgs } from 'react-chessboard'
 import { DEFAULT_BOARD_CONFIG, type ChessBoardProps } from './types'
 
 export function ChessBoard({
@@ -14,46 +13,36 @@ export function ChessBoard({
   onPieceDrop,
   onSquareClick,
   onPieceDragBegin,
+  onPieceDragEnd,
 }: ChessBoardProps) {
-  const handlePieceDrop = ({
-    piece,
-    sourceSquare,
-    targetSquare,
-  }: PieceDropHandlerArgs): boolean => {
-    if (onPieceDrop && targetSquare) {
-      return onPieceDrop(
-        sourceSquare as Square,
-        targetSquare as Square,
-        piece.pieceType
-      )
+  const handlePieceDrop = (
+    sourceSquare: Square,
+    targetSquare: Square,
+    piece: string
+  ): boolean => {
+    if (onPieceDrop) {
+      return onPieceDrop(sourceSquare, targetSquare, piece)
     }
     // Allow all moves by default (visual only, no validation)
     return true
   }
 
-  const handleSquareClick = ({ square }: SquareHandlerArgs) => {
+  const handleSquareClick = (square: Square) => {
     if (onSquareClick) {
-      onSquareClick(square as Square)
+      onSquareClick(square)
     }
   }
 
-  const handlePieceDrag = ({ piece, square }: PieceHandlerArgs) => {
-    if (onPieceDragBegin && square) {
-      onPieceDragBegin(piece.pieceType, square as Square)
+  const handlePieceDragBegin = (piece: string, sourceSquare: Square) => {
+    if (onPieceDragBegin) {
+      onPieceDragBegin(piece, sourceSquare)
     }
   }
 
-  const options: ChessboardOptions = {
-    position,
-    boardOrientation: orientation,
-    allowDragging: allowDrag,
-    lightSquareStyle: { backgroundColor: lightSquareColor },
-    darkSquareStyle: { backgroundColor: darkSquareColor },
-    animationDurationInMs: animationDuration,
-    showNotation: showCoordinates,
-    onPieceDrop: handlePieceDrop,
-    onSquareClick: handleSquareClick,
-    onPieceDrag: handlePieceDrag,
+  const handlePieceDragEnd = (piece: string, sourceSquare: Square) => {
+    if (onPieceDragEnd) {
+      onPieceDragEnd(piece, sourceSquare)
+    }
   }
 
   return (
@@ -61,7 +50,19 @@ export function ChessBoard({
       data-testid="chess-board-container"
       className="w-full max-w-[600px] mx-auto"
     >
-      <Chessboard options={options} />
+      <Chessboard
+        position={position}
+        boardOrientation={orientation}
+        arePiecesDraggable={allowDrag}
+        customLightSquareStyle={{ backgroundColor: lightSquareColor }}
+        customDarkSquareStyle={{ backgroundColor: darkSquareColor }}
+        animationDuration={animationDuration}
+        showBoardNotation={showCoordinates}
+        onPieceDrop={handlePieceDrop}
+        onSquareClick={handleSquareClick}
+        onPieceDragBegin={handlePieceDragBegin}
+        onPieceDragEnd={handlePieceDragEnd}
+      />
     </div>
   )
 }

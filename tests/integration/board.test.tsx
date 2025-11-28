@@ -4,12 +4,12 @@ import { ChessBoard } from '../../src/components/Board'
 
 // Mock react-chessboard since it has rendering issues in jsdom
 vi.mock('react-chessboard', () => ({
-  Chessboard: ({ options }: { options: Record<string, unknown> }) => (
+  Chessboard: (props: Record<string, unknown>) => (
     <div
       data-testid="mock-chessboard"
-      data-position={options?.position}
-      data-orientation={options?.boardOrientation}
-      data-draggable={String(options?.allowDragging)}
+      data-position={props?.position as string}
+      data-orientation={props?.boardOrientation as string}
+      data-draggable={String(props?.arePiecesDraggable)}
     >
       Mocked Chessboard
     </div>
