@@ -1,0 +1,96 @@
+{
+  "projectName": "Force Chess",
+  "lastUpdated": "2025-11-27T21:00:00Z",
+  "currentPhase": "phase-0",
+  "currentSession": "session-01",
+
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Project Foundation",
+      "status": "in_progress",
+      "sessions": ["session-01"],
+      "deliverables": [
+        { "id": "p0-d1", "task": "Initialize React + TypeScript + Vite project", "status": "completed" },
+        { "id": "p0-d2", "task": "Create directory structure per specification", "status": "completed" },
+        { "id": "p0-d3", "task": "Set up PROJECT_CHARTER.json (machine-readable)", "status": "completed" },
+        { "id": "p0-d4", "task": "Create research documentation from web research", "status": "pending" },
+        { "id": "p0-d5", "task": "Establish SESSION_INDEX.json and progress tracking", "status": "pending" },
+        { "id": "p0-d6", "task": "Configure ESLint, Prettier, testing framework", "status": "pending" }
+      ]
+    },
+    {
+      "id": "phase-1",
+      "name": "Basic Chess Board",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-2",
+      "name": "Legal Move Enforcement + Basic Notation",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-3",
+      "name": "Game Controls + Import/Export",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-4",
+      "name": "Threat Visualization",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-5",
+      "name": "Enhanced Visualization Modes",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-6",
+      "name": "AI Opponent Integration",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-7",
+      "name": "Polish and Optimization",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    },
+    {
+      "id": "phase-8",
+      "name": "Game Library and Historical Games",
+      "status": "pending",
+      "sessions": [],
+      "deliverables": []
+    }
+  ],
+
+  "sessions": [
+    {
+      "id": "session-01",
+      "phase": "phase-0",
+      "status": "in_progress",
+      "startedAt": "2025-11-27T21:00:00Z",
+      "handoffDoc": null
+    }
+  ],
+
+  "metrics": {
+    "totalSessions": 1,
+    "completedPhases": 0,
+    "totalPhases": 9,
+    "overallProgress": 0
+  }
+}

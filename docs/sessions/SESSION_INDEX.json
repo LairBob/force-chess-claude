@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-27T21:00:00Z",
+  "totalSessions": 1,
+  "activeSessions": ["session-01"],
+
+  "sessions": [
+    {
+      "id": "session-01",
+      "phase": "phase-0",
+      "name": "Project Foundation",
+      "status": "in_progress",
+      "startedAt": "2025-11-27T21:00:00Z",
+      "completedAt": null,
+      "folder": "docs/sessions/session-01",
+      "charterFile": "docs/sessions/session-01/charter.json",
+      "progressFile": "docs/sessions/session-01/progress.json",
+      "handoffFile": null
+    }
+  ]
+}

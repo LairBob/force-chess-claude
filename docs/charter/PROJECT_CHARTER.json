@@ -1,0 +1,147 @@
+{
+  "projectName": "Force Chess",
+  "version": "1.0.0",
+  "createdAt": "2025-11-27T00:00:00Z",
+  "lastUpdated": "2025-11-27T00:00:00Z",
+
+  "vision": "Create an educational and analytical chess application that goes beyond standard chess apps by providing real-time visual feedback on board control, threat assessment, and positional strength for every square.",
+
+  "objectives": [
+    {
+      "id": "obj-1",
+      "name": "Playable Chess",
+      "description": "Standard chess rules with legal move enforcement",
+      "priority": 1
+    },
+    {
+      "id": "obj-2",
+      "name": "Notation System",
+      "description": "Real-time algebraic notation with FEN/PGN support",
+      "priority": 2
+    },
+    {
+      "id": "obj-3",
+      "name": "Threat Visualization",
+      "description": "Real-time heatmap showing degree of control per square",
+      "priority": 3
+    },
+    {
+      "id": "obj-4",
+      "name": "Multi-Mode Play",
+      "description": "Local 2-player and vs AI (Stockfish)",
+      "priority": 4
+    },
+    {
+      "id": "obj-5",
+      "name": "Tutorial/Debug Modes",
+      "description": "Enhanced visualization overlays for learning",
+      "priority": 5
+    },
+    {
+      "id": "obj-6",
+      "name": "Game Library",
+      "description": "Load/save games, access historical matches",
+      "priority": 6
+    },
+    {
+      "id": "obj-7",
+      "name": "Modular Architecture",
+      "description": "Clean separation of concerns for maintainability",
+      "priority": 7
+    }
+  ],
+
+  "technologyStack": {
+    "framework": "React 18+",
+    "language": "TypeScript",
+    "buildTool": "Vite",
+    "styling": "Tailwind CSS",
+    "chessLogic": "chess.js",
+    "boardUI": "react-chessboard",
+    "aiEngine": "stockfish.js",
+    "stateManagement": "React Context + useReducer",
+    "testing": "Vitest + React Testing Library"
+  },
+
+  "designPrinciples": [
+    {
+      "id": "dp-1",
+      "name": "Modularity",
+      "description": "Each feature as independent module with clear interfaces"
+    },
+    {
+      "id": "dp-2",
+      "name": "Separation of Concerns",
+      "description": "Game logic, UI, visualization, AI as distinct layers"
+    },
+    {
+      "id": "dp-3",
+      "name": "Progressive Enhancement",
+      "description": "Basic chess first, then layered features"
+    },
+    {
+      "id": "dp-4",
+      "name": "Machine-Readable Artifacts",
+      "description": "JSON configs, indexed resources, structured handoffs"
+    }
+  ],
+
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Project Foundation",
+      "description": "Establish project infrastructure, research documentation, and tracking systems"
+    },
+    {
+      "id": "phase-1",
+      "name": "Basic Chess Board",
+      "description": "Display interactive chessboard with piece rendering"
+    },
+    {
+      "id": "phase-2",
+      "name": "Legal Move Enforcement + Basic Notation",
+      "description": "Integrate chess.js for full rules compliance with real-time notation display"
+    },
+    {
+      "id": "phase-3",
+      "name": "Game Controls + Import/Export",
+      "description": "Full game management with save/load capabilities"
+    },
+    {
+      "id": "phase-4",
+      "name": "Threat Visualization",
+      "description": "Real-time board control heatmap"
+    },
+    {
+      "id": "phase-5",
+      "name": "Enhanced Visualization Modes",
+      "description": "Tutorial and debug visualization options"
+    },
+    {
+      "id": "phase-6",
+      "name": "AI Opponent Integration",
+      "description": "Single-player mode with Stockfish"
+    },
+    {
+      "id": "phase-7",
+      "name": "Polish and Optimization",
+      "description": "Production-ready application"
+    },
+    {
+      "id": "phase-8",
+      "name": "Game Library and Historical Games",
+      "description": "Access famous games and build personal game library"
+    }
+  ],
+
+  "successCriteria": [
+    "Fully playable chess with legal move enforcement",
+    "Real-time algebraic notation with FEN/PGN import/export",
+    "Real-time threat visualization with multiple modes",
+    "Working AI opponent at multiple difficulty levels",
+    "Game library with save/load and historical games access",
+    "Responsive design (mobile + desktop)",
+    "Complete documentation and research archive",
+    "Clean handoff capability at any point"
+  ]
+}

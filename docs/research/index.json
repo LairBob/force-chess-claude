@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-11-27",
+  "description": "Research resources index for Force Chess project",
+
+  "resources": [
+    {
+      "id": "res-001",
+      "title": "UI/UX Guidelines",
+      "path": "docs/research/ui-ux-guidelines.md",
+      "category": "design",
+      "tags": ["ui", "ux", "design", "responsive", "accessibility"]
+    },
+    {
+      "id": "res-002",
+      "title": "Chess Logic",
+      "path": "docs/research/chess-logic.md",
+      "category": "implementation",
+      "tags": ["chess.js", "move-validation", "game-state", "rules"]
+    },
+    {
+      "id": "res-003",
+      "title": "Notation Systems",
+      "path": "docs/research/notation-systems.md",
+      "category": "implementation",
+      "tags": ["fen", "pgn", "san", "notation", "import", "export"]
+    },
+    {
+      "id": "res-004",
+      "title": "Visualization",
+      "path": "docs/research/visualization.md",
+      "category": "implementation",
+      "tags": ["heatmap", "threat-detection", "square-control", "overlay"]
+    },
+    {
+      "id": "res-005",
+      "title": "AI Integration",
+      "path": "docs/research/ai-integration.md",
+      "category": "implementation",
+      "tags": ["stockfish", "wasm", "web-worker", "uci"]
+    },
+    {
+      "id": "res-006",
+      "title": "Game Libraries",
+      "path": "docs/research/game-libraries.md",
+      "category": "external",
+      "tags": ["lichess", "chess.com", "api", "pgn-database", "openings"]
+    }
+  ],
+
+  "externalSources": [
+    {
+      "title": "chess.js GitHub",
+      "url": "https://github.com/jhlywa/chess.js",
+      "category": "library",
+      "description": "TypeScript chess library for move generation/validation"
+    },
+    {
+      "title": "react-chessboard GitHub",
+      "url": "https://github.com/Clariity/react-chessboard",
+      "category": "library",
+      "description": "Modern, responsive chessboard component for React"
+    },
+    {
+      "title": "stockfish.js GitHub",
+      "url": "https://github.com/nmrugg/stockfish.js",
+      "category": "library",
+      "description": "Stockfish chess engine compiled to WebAssembly"
+    },
+    {
+      "title": "Chess Visualizer",
+      "url": "https://github.com/tlee753/chess-visualizer",
+      "category": "reference",
+      "description": "Reference implementation for threat heatmap visualization"
+    },
+    {
+      "title": "Chess Heatmap",
+      "url": "https://github.com/qxf2/chess-heatmap",
+      "category": "reference",
+      "description": "Python project for control heatmap analysis"
+    },
+    {
+      "title": "Lichess API",
+      "url": "https://lichess.org/api",
+      "category": "api",
+      "description": "Open API for accessing games and analysis"
+    },
+    {
+      "title": "Chess.com API",
+      "url": "https://www.chess.com/news/view/published-data-api",
+      "category": "api",
+      "description": "Public data API for Chess.com"
+    }
+  ]
+}
