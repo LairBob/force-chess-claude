@@ -1,6 +1,19 @@
+import { useMemo } from 'react'
 import { Chessboard } from 'react-chessboard'
 import type { Square } from 'chess.js'
-import { DEFAULT_BOARD_CONFIG, type ChessBoardProps } from './types'
+import {
+  DEFAULT_BOARD_CONFIG,
+  HIGHLIGHT_COLORS,
+  type ChessBoardProps,
+  type SquareStyles,
+} from './types'
+
+// Helper to check if a square is light colored
+function isLightSquare(square: Square): boolean {
+  const file = square.charCodeAt(0) - 97 // 'a' = 0, 'b' = 1, etc.
+  const rank = parseInt(square[1]) - 1 // '1' = 0, '2' = 1, etc.
+  return (file + rank) % 2 === 1
+}
 
 export function ChessBoard({
   position = DEFAULT_BOARD_CONFIG.position,
@@ -10,11 +23,50 @@ export function ChessBoard({
   darkSquareColor = DEFAULT_BOARD_CONFIG.darkSquareColor,
   animationDuration = DEFAULT_BOARD_CONFIG.animationDuration,
   showCoordinates = DEFAULT_BOARD_CONFIG.showCoordinates,
+  selectedSquare,
+  legalMoves = [],
+  lastMove,
   onPieceDrop,
   onSquareClick,
   onPieceDragBegin,
   onPieceDragEnd,
 }: ChessBoardProps) {
+  // Build custom square styles for highlighting
+  const customSquareStyles = useMemo((): SquareStyles => {
+    const styles: SquareStyles = {}
+
+    // Last move highlighting (lowest priority - applied first)
+    if (lastMove) {
+      styles[lastMove.from] = {
+        backgroundColor: HIGHLIGHT_COLORS.lastMoveLight,
+      }
+      styles[lastMove.to] = {
+        backgroundColor: HIGHLIGHT_COLORS.lastMoveDark,
+      }
+    }
+
+    // Selected square highlighting
+    if (selectedSquare) {
+      styles[selectedSquare] = {
+        ...styles[selectedSquare],
+        backgroundColor: HIGHLIGHT_COLORS.selected,
+      }
+    }
+
+    // Legal move highlighting
+    legalMoves.forEach((square) => {
+      // Check if there's a piece on this square (would be a capture)
+      // For now, use simple dot - we could enhance this later to show capture rings
+      const baseColor = isLightSquare(square) ? lightSquareColor : darkSquareColor
+      styles[square] = {
+        ...styles[square],
+        background: `${HIGHLIGHT_COLORS.legalMove}, ${baseColor}`,
+      }
+    })
+
+    return styles
+  }, [selectedSquare, legalMoves, lastMove, lightSquareColor, darkSquareColor])
+
   const handlePieceDrop = (
     sourceSquare: Square,
     targetSquare: Square,
@@ -23,8 +75,8 @@ export function ChessBoard({
     if (onPieceDrop) {
       return onPieceDrop(sourceSquare, targetSquare, piece)
     }
-    // Allow all moves by default (visual only, no validation)
-    return true
+    // Reject moves by default when no handler (require explicit validation)
+    return false
   }
 
   const handleSquareClick = (square: Square) => {
@@ -56,6 +108,7 @@ export function ChessBoard({
         arePiecesDraggable={allowDrag}
         customLightSquareStyle={{ backgroundColor: lightSquareColor }}
         customDarkSquareStyle={{ backgroundColor: darkSquareColor }}
+        customSquareStyles={customSquareStyles}
         animationDuration={animationDuration}
         showBoardNotation={showCoordinates}
         onPieceDrop={handlePieceDrop}
