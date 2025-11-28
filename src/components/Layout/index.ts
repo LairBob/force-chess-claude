@@ -1,4 +1,2 @@
-// Layout component - App shell, responsive layout
-// Implemented in Phase 1
-
-export {}
+export { GameLayout } from './GameLayout'
+export type { GameLayoutProps } from './types'
