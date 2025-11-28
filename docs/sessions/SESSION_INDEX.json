@@ -1,21 +1,21 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-11-27T21:00:00Z",
+  "lastUpdated": "2025-11-27T21:30:00Z",
   "totalSessions": 1,
-  "activeSessions": ["session-01"],
+  "activeSessions": [],
 
   "sessions": [
     {
       "id": "session-01",
       "phase": "phase-0",
       "name": "Project Foundation",
-      "status": "in_progress",
+      "status": "completed",
       "startedAt": "2025-11-27T21:00:00Z",
-      "completedAt": null,
+      "completedAt": "2025-11-27T21:30:00Z",
       "folder": "docs/sessions/session-01",
       "charterFile": "docs/sessions/session-01/charter.json",
       "progressFile": "docs/sessions/session-01/progress.json",
-      "handoffFile": null
+      "handoffFile": "docs/handoffs/HANDOFF_01.md"
     }
   ]
 }
