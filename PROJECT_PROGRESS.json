@@ -1,6 +1,6 @@
 {
   "projectName": "Force Chess",
-  "lastUpdated": "2025-11-28T10:42:00Z",
+  "lastUpdated": "2025-11-28T11:15:00Z",
   "currentPhase": "phase-2",
   "currentSession": null,
 
@@ -24,14 +24,15 @@
       "id": "phase-1",
       "name": "Basic Chess Board",
       "status": "completed",
-      "completedAt": "2025-11-28T10:42:00Z",
+      "completedAt": "2025-11-28T11:15:00Z",
       "sessions": ["session-02"],
       "deliverables": [
-        { "id": "p1-d1", "task": "Install and configure react-chessboard", "status": "completed" },
+        { "id": "p1-d1", "task": "Install and configure react-chessboard", "status": "completed", "notes": "Using v4 for React 19 compatibility" },
         { "id": "p1-d2", "task": "Create Board component wrapper", "status": "completed" },
         { "id": "p1-d3", "task": "Implement basic responsive layout", "status": "completed" },
         { "id": "p1-d4", "task": "Add piece drag-drop (visual only)", "status": "completed" },
-        { "id": "p1-d5", "task": "Style customization (board colors, piece set)", "status": "completed" }
+        { "id": "p1-d5", "task": "Style customization (board colors, piece set)", "status": "completed" },
+        { "id": "p1-d6", "task": "Set up Playwright MCP for browser interaction", "status": "completed" }
       ]
     },
     {
@@ -105,7 +106,7 @@
       "phase": "phase-1",
       "status": "completed",
       "startedAt": "2025-11-28T10:34:00Z",
-      "completedAt": "2025-11-28T10:42:00Z",
+      "completedAt": "2025-11-28T11:15:00Z",
       "handoffDoc": "docs/handoffs/HANDOFF_02.md"
     }
   ],
