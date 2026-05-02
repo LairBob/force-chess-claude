@@ -42,8 +42,11 @@ export const SQUARE_COLORS: Record<string, SquareColorScheme> = {
   },
 }
 
+// Standard chess starting position FEN (react-chessboard v5 requires a real FEN)
+export const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
 export const DEFAULT_BOARD_CONFIG: BoardConfig = {
-  position: 'start',
+  position: STARTING_FEN,
   orientation: 'white',
   allowDrag: true,
   lightSquareColor: SQUARE_COLORS.default.light,
