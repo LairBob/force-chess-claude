@@ -8,6 +8,25 @@ import {
   type SquareStyles,
 } from './types'
 
+// react-chessboard v5 passes argument objects to its handlers; type them locally
+// rather than importing — the library re-exports vary across minor versions and
+// the shapes are simple enough to mirror.
+interface PieceDropArgs {
+  piece: { pieceType: string }
+  sourceSquare: string
+  targetSquare: string | null
+}
+
+interface SquareClickArgs {
+  piece: { pieceType: string } | null
+  square: string
+}
+
+interface PieceDragArgs {
+  piece: { pieceType: string }
+  square: string
+}
+
 // Helper to check if a square is light colored
 function isLightSquare(square: Square): boolean {
   const file = square.charCodeAt(0) - 97 // 'a' = 0, 'b' = 1, etc.
@@ -32,7 +51,7 @@ export function ChessBoard({
   onPieceDragEnd,
 }: ChessBoardProps) {
   // Build custom square styles for highlighting
-  const customSquareStyles = useMemo((): SquareStyles => {
+  const squareStyles = useMemo((): SquareStyles => {
     const styles: SquareStyles = {}
 
     // Last move highlighting (lowest priority - applied first)
@@ -67,54 +86,53 @@ export function ChessBoard({
     return styles
   }, [selectedSquare, legalMoves, lastMove, lightSquareColor, darkSquareColor])
 
-  const handlePieceDrop = (
-    sourceSquare: Square,
-    targetSquare: Square,
-    piece: string
-  ): boolean => {
+  const handlePieceDrop = ({ sourceSquare, targetSquare, piece }: PieceDropArgs): boolean => {
+    // v5 removed onPieceDragEnd; the drop handler always fires after a drag,
+    // so use it as the seam to invoke the legacy onPieceDragEnd callback for
+    // callers that still rely on it.
+    if (onPieceDragEnd) {
+      onPieceDragEnd(piece.pieceType, sourceSquare as Square)
+    }
+    if (!targetSquare) {
+      return false
+    }
     if (onPieceDrop) {
-      return onPieceDrop(sourceSquare, targetSquare, piece)
+      return onPieceDrop(sourceSquare as Square, targetSquare as Square, piece.pieceType)
     }
     // Reject moves by default when no handler (require explicit validation)
     return false
   }
 
-  const handleSquareClick = (square: Square) => {
+  const handleSquareClick = ({ square }: SquareClickArgs) => {
     if (onSquareClick) {
-      onSquareClick(square)
+      onSquareClick(square as Square)
     }
   }
 
-  const handlePieceDragBegin = (piece: string, sourceSquare: Square) => {
+  // v5 renamed onPieceDragBegin -> onPieceDrag; signature changed to a single
+  // arg object containing the piece and its source square.
+  const handlePieceDrag = ({ piece, square }: PieceDragArgs) => {
     if (onPieceDragBegin) {
-      onPieceDragBegin(piece, sourceSquare)
-    }
-  }
-
-  const handlePieceDragEnd = (piece: string, sourceSquare: Square) => {
-    if (onPieceDragEnd) {
-      onPieceDragEnd(piece, sourceSquare)
+      onPieceDragBegin(piece.pieceType, square as Square)
     }
   }
 
   return (
-    <div
-      data-testid="chess-board-container"
-      className="w-full max-w-[600px] mx-auto"
-    >
+    <div data-testid="chess-board-container" className="w-full max-w-[600px] mx-auto">
       <Chessboard
-        position={position}
-        boardOrientation={orientation}
-        arePiecesDraggable={allowDrag}
-        customLightSquareStyle={{ backgroundColor: lightSquareColor }}
-        customDarkSquareStyle={{ backgroundColor: darkSquareColor }}
-        customSquareStyles={customSquareStyles}
-        animationDuration={animationDuration}
-        showBoardNotation={showCoordinates}
-        onPieceDrop={handlePieceDrop}
-        onSquareClick={handleSquareClick}
-        onPieceDragBegin={handlePieceDragBegin}
-        onPieceDragEnd={handlePieceDragEnd}
+        options={{
+          position,
+          boardOrientation: orientation,
+          allowDragging: allowDrag,
+          lightSquareStyle: { backgroundColor: lightSquareColor },
+          darkSquareStyle: { backgroundColor: darkSquareColor },
+          squareStyles,
+          animationDurationInMs: animationDuration,
+          showNotation: showCoordinates,
+          onPieceDrop: handlePieceDrop,
+          onSquareClick: handleSquareClick,
+          onPieceDrag: handlePieceDrag,
+        }}
       />
     </div>
   )
