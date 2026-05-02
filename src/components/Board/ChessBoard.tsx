@@ -23,8 +23,9 @@ interface SquareClickArgs {
 }
 
 interface PieceDragArgs {
+  isSparePiece?: boolean
   piece: { pieceType: string }
-  square: string
+  square: string | null
 }
 
 // Helper to check if a square is light colored
@@ -110,9 +111,10 @@ export function ChessBoard({
   }
 
   // v5 renamed onPieceDragBegin -> onPieceDrag; signature changed to a single
-  // arg object containing the piece and its source square.
+  // arg object. `square` can be null when dragging a spare piece (off-board);
+  // we only forward to the legacy callback when there's a real source square.
   const handlePieceDrag = ({ piece, square }: PieceDragArgs) => {
-    if (onPieceDragBegin) {
+    if (onPieceDragBegin && square) {
       onPieceDragBegin(piece.pieceType, square as Square)
     }
   }
