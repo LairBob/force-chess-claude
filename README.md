@@ -107,25 +107,19 @@ force-chess-claude/
 
 | Phase | Name | Description | Status |
 |-------|------|-------------|--------|
-| 0 | Project Foundation | Infrastructure, research, tracking | In Progress |
-| 1 | Basic Chess Board | Interactive board with piece rendering | Pending |
-| 2 | Legal Moves + Notation | Rules compliance, real-time notation | Pending |
-| 3 | Game Controls | Save/load, import/export | Pending |
+| 0 | Project Foundation | Infrastructure, research, tracking | Complete |
+| 1 | Basic Chess Board | Interactive board with piece rendering | Complete |
+| 2 | Legal Moves + Notation | Rules compliance, real-time notation | Complete |
+| 3 | Game Controls | Save/load, import/export, navigation | In Progress |
 | 4 | Threat Visualization | Board control heatmap | Pending |
 | 5 | Enhanced Visualization | Tutorial/debug modes | Pending |
 | 6 | AI Opponent | Stockfish integration | Pending |
 | 7 | Polish | Mobile, accessibility, themes | Pending |
 | 8 | Game Library | Historical games, external APIs | Pending |
 
-## Session Management
+## Session continuity
 
-This project uses a structured session management system for development continuity:
-
-- **Session Charter**: Defines goals and success criteria
-- **Progress Tracker**: Real-time task tracking
-- **Handoff Documents**: Context restoration between sessions
-
-See `docs/sessions/` for session history.
+Phase boundaries are documented in `docs/handoffs/HANDOFF_NN.md`. The single source of truth for phase status is `PROJECT_PROGRESS.json`.
 
 ## Testing Strategy
 

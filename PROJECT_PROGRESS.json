@@ -1,6 +1,6 @@
 {
   "projectName": "Force Chess",
-  "lastUpdated": "2025-11-28T16:35:00Z",
+  "lastUpdated": "2026-05-02T00:00:00Z",
   "currentPhase": "phase-3",
   "currentSession": null,
 
@@ -67,7 +67,13 @@
       "name": "Threat Visualization",
       "status": "pending",
       "sessions": [],
-      "deliverables": []
+      "deliverables": [
+        { "id": "p4-d1", "task": "Implement threat analyzer using chess.js .attackers(square, color)", "status": "pending", "notes": "chess.js v1.4+ exposes attackers() natively — no need to reimplement attacker enumeration" },
+        { "id": "p4-d2", "task": "Add per-square control differential calculation (whiteAttacks - blackAttacks)", "status": "pending" },
+        { "id": "p4-d3", "task": "Implement heatmap overlay using react-chessboard v5 squareRenderer", "status": "pending" },
+        { "id": "p4-d4", "task": "Color mapping per docs/research/visualization.md (green/red/yellow with intensity)", "status": "pending" },
+        { "id": "p4-d5", "task": "Optional numeric overlay showing differential per square", "status": "pending" }
+      ]
     },
     {
       "id": "phase-5",
