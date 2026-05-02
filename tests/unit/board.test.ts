@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { DEFAULT_BOARD_CONFIG, SQUARE_COLORS, type BoardConfig } from '../../src/components/Board/types'
+import {
+  DEFAULT_BOARD_CONFIG,
+  SQUARE_COLORS,
+  type BoardConfig,
+} from '../../src/components/Board/types'
 
 describe('Board Types and Configuration', () => {
   describe('Default Board Configuration', () => {

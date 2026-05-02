@@ -41,5 +41,4 @@ describe('GameLayout Component', () => {
       expect(screen.getByText('Sidebar')).toBeInTheDocument()
     })
   })
-
 })

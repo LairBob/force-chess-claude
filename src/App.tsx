@@ -130,9 +130,7 @@ function App() {
               key={scheme}
               onClick={() => handleColorChange(scheme)}
               className={`px-3 py-1.5 rounded text-sm capitalize transition-colors ${
-                colorScheme === scheme
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 hover:bg-gray-600'
+                colorScheme === scheme ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
               }`}
             >
               {scheme}

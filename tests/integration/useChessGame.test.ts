@@ -6,9 +6,7 @@ describe('useChessGame Hook', () => {
   describe('Initialization', () => {
     it('should start with default FEN', () => {
       const { result } = renderHook(() => useChessGame())
-      expect(result.current.fen).toBe(
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      )
+      expect(result.current.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     })
 
     it('should start with white to move', () => {
@@ -203,9 +201,7 @@ describe('useChessGame Hook', () => {
         result.current.reset()
       })
 
-      expect(result.current.fen).toBe(
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      )
+      expect(result.current.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
       expect(result.current.history).toHaveLength(0)
       expect(result.current.lastMove).toBeNull()
       expect(result.current.selectedSquare).toBeNull()
@@ -338,9 +334,7 @@ describe('useChessGame Hook', () => {
 
       act(() => {
         // Load a position where black is in check
-        result.current.loadFEN(
-          'rnbqkbnr/ppppp1pp/8/5p1Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2'
-        )
+        result.current.loadFEN('rnbqkbnr/ppppp1pp/8/5p1Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2')
       })
 
       expect(result.current.gameState.isCheck).toBe(true)
@@ -351,9 +345,7 @@ describe('useChessGame Hook', () => {
 
       act(() => {
         // Fool's mate position
-        result.current.loadFEN(
-          'rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3'
-        )
+        result.current.loadFEN('rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3')
       })
 
       expect(result.current.gameState.isCheckmate).toBe(true)

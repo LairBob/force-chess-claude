@@ -10,9 +10,7 @@ describe('ChessEngine', () => {
 
   describe('Initialization', () => {
     it('should start with standard position', () => {
-      expect(engine.getFEN()).toBe(
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      )
+      expect(engine.getFEN()).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     })
 
     it('should initialize with custom FEN', () => {
@@ -215,9 +213,7 @@ describe('ChessEngine', () => {
       engine.makeMove('e4')
       engine.makeMove('e5')
       engine.reset()
-      expect(engine.getFEN()).toBe(
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-      )
+      expect(engine.getFEN()).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     })
   })
 

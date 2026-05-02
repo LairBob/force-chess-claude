@@ -67,11 +67,7 @@ export function ChessBoard({
     return styles
   }, [selectedSquare, legalMoves, lastMove, lightSquareColor, darkSquareColor])
 
-  const handlePieceDrop = (
-    sourceSquare: Square,
-    targetSquare: Square,
-    piece: string
-  ): boolean => {
+  const handlePieceDrop = (sourceSquare: Square, targetSquare: Square, piece: string): boolean => {
     if (onPieceDrop) {
       return onPieceDrop(sourceSquare, targetSquare, piece)
     }
@@ -98,10 +94,7 @@ export function ChessBoard({
   }
 
   return (
-    <div
-      data-testid="chess-board-container"
-      className="w-full max-w-[600px] mx-auto"
-    >
+    <div data-testid="chess-board-container" className="w-full max-w-[600px] mx-auto">
       <Chessboard
         position={position}
         boardOrientation={orientation}

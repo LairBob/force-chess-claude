@@ -12,10 +12,8 @@ describe('Chess Rules', () => {
   describe('Castling', () => {
     // Cleared back-rank position: kings and rooks only on the back ranks,
     // pawns still on 2/7. Both sides retain full castling rights.
-    const CLEARED_WHITE_TO_MOVE =
-      'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
-    const CLEARED_BLACK_TO_MOVE =
-      'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1'
+    const CLEARED_WHITE_TO_MOVE = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+    const CLEARED_BLACK_TO_MOVE = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1'
 
     it('kingside castling succeeds for white from cleared back rank', () => {
       engine.loadFEN(CLEARED_WHITE_TO_MOVE)
@@ -94,9 +92,7 @@ describe('Chess Rules', () => {
   describe('En Passant', () => {
     it('legal en passant capture immediately after pawn double-step', () => {
       // White pawn on e5, black just played d7-d5 (en passant target d6).
-      engine.loadFEN(
-        'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3'
-      )
+      engine.loadFEN('rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3')
       const move = engine.makeMove('exd6')
       expect(move).not.toBeNull()
       expect(move?.captured).toBe('p')
@@ -108,9 +104,7 @@ describe('Chess Rules', () => {
     it('en passant illegal after one intervening move', () => {
       // Same position but no en passant target — black already moved a tempo,
       // and now white tries to capture the pawn on d5 en passant. Illegal.
-      engine.loadFEN(
-        'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3'
-      )
+      engine.loadFEN('rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3')
       // White plays a non-capturing developing move instead of exd6.
       expect(engine.makeMove('Nf3')).not.toBeNull()
       // Black plays a tempo move that doesn't block the e-file capture path.
@@ -238,9 +232,7 @@ describe('Chess Rules', () => {
       const newEngine = new ChessEngine()
       const loaded = newEngine.loadPGN(capturedPGN)
       expect(loaded).toBe(true)
-      expect(newEngine.getHistory().map((m) => m.san)).toEqual(
-        capturedHistorySAN
-      )
+      expect(newEngine.getHistory().map((m) => m.san)).toEqual(capturedHistorySAN)
     })
   })
 

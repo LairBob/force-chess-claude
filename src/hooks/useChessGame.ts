@@ -37,10 +37,12 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null)
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
 
-  // Calculate legal moves for the selected square
+  // `fen` is intentionally in the deps: legal moves depend on the engine's
+  // mutable state, and `fen` changes whenever that state advances.
   const legalMoves = useMemo(() => {
     if (!selectedSquare) return []
     return engine.getLegalMoves(selectedSquare).map((m) => m.to)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSquare, fen, engine])
 
   const syncState = useCallback(() => {
@@ -63,12 +65,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     [engine, syncState]
   )
 
-  const selectSquare = useCallback(
-    (square: Square | null) => {
-      setSelectedSquare(square)
-    },
-    []
-  )
+  const selectSquare = useCallback((square: Square | null) => {
+    setSelectedSquare(square)
+  }, [])
 
   const undoMove = useCallback((): boolean => {
     const undone = engine.undoMove()
@@ -182,12 +181,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     [selectedSquare, makeMove, engine]
   )
 
-  const onPieceDragBegin = useCallback(
-    (_piece: string, sourceSquare: Square) => {
-      setSelectedSquare(sourceSquare)
-    },
-    []
-  )
+  const onPieceDragBegin = useCallback((_piece: string, sourceSquare: Square) => {
+    setSelectedSquare(sourceSquare)
+  }, [])
 
   const onPieceDragEnd = useCallback(() => {
     // Don't clear selection on drag end - let onPieceDrop handle it

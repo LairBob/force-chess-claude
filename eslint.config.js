@@ -8,17 +8,17 @@ import prettierConfig from 'eslint-config-prettier'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'coverage', 'node_modules']),
+  globalIgnores(['dist', 'coverage', 'node_modules', '.claude', 'playwright-report']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
-      reactHooks.configs['flat/recommended'],
       prettierConfig,
     ],
     plugins: {
       'react-refresh': reactRefresh,
+      'react-hooks': reactHooks,
       'prettier': prettier,
     },
     languageOptions: {
@@ -26,6 +26,8 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
