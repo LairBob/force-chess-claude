@@ -55,3 +55,9 @@ pnpm-debug.log*
 
 # Playwright MCP browser session artifacts (transient; created by the MCP server)
 .playwright-mcp/
+
+# Screenshots / browser artifacts at project root (from MCP smoke tests)
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
