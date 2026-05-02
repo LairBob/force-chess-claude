@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ChessBoard, SQUARE_COLORS } from './components/Board'
 import { GameLayout } from './components/Layout'
+import { Header } from './components/Controls'
+import { MoveHistory } from './components/Notation'
 import { useChessGame } from './hooks'
 
 type ColorScheme = keyof typeof SQUARE_COLORS
@@ -28,10 +30,6 @@ function App() {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'))
   }
 
-  const handleColorChange = (scheme: ColorScheme) => {
-    setColorScheme(scheme)
-  }
-
   const getStatusText = () => {
     if (gameState.isCheckmate) {
       return `Checkmate! ${gameState.turn === 'w' ? 'Black' : 'White'} wins!`
@@ -49,35 +47,16 @@ function App() {
   }
 
   const header = (
-    <div className="flex items-center justify-between px-4 py-3">
-      <h1 className="text-xl font-bold text-white">Force Chess</h1>
-      <div className="flex gap-2">
-        <button
-          onClick={undoMove}
-          disabled={history.length === 0}
-          className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm transition-colors"
-        >
-          Undo
-        </button>
-        <button
-          onClick={handleFlipBoard}
-          className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
-        >
-          Flip Board
-        </button>
-        <button
-          onClick={reset}
-          className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
-        >
-          New Game
-        </button>
-      </div>
-    </div>
+    <Header
+      canUndo={history.length > 0}
+      onUndo={undoMove}
+      onFlipBoard={handleFlipBoard}
+      onNewGame={reset}
+    />
   )
 
   const sidebar = (
     <div className="space-y-4">
-      {/* Game Status */}
       <div>
         <h2 className="text-lg font-semibold mb-2">Status</h2>
         <div
@@ -93,42 +72,18 @@ function App() {
         </div>
       </div>
 
-      {/* Move History */}
       <div>
         <h2 className="text-lg font-semibold mb-2">Move History</h2>
-        <div className="bg-gray-800 rounded p-2 max-h-48 overflow-y-auto">
-          {history.length === 0 ? (
-            <p className="text-gray-500 text-sm">No moves yet</p>
-          ) : (
-            <div className="text-sm font-mono">
-              {history.reduce((acc: JSX.Element[], move, index) => {
-                if (index % 2 === 0) {
-                  const moveNumber = Math.floor(index / 2) + 1
-                  const whiteMoves = move.san
-                  const blackMove = history[index + 1]?.san || ''
-                  acc.push(
-                    <div key={moveNumber} className="flex gap-2">
-                      <span className="text-gray-500 w-8">{moveNumber}.</span>
-                      <span className="w-16">{whiteMoves}</span>
-                      <span className="w-16">{blackMove}</span>
-                    </div>
-                  )
-                }
-                return acc
-              }, [])}
-            </div>
-          )}
-        </div>
+        <MoveHistory history={history} />
       </div>
 
-      {/* Board Colors */}
       <div>
         <h2 className="text-lg font-semibold mb-2">Board Colors</h2>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(SQUARE_COLORS) as ColorScheme[]).map((scheme) => (
             <button
               key={scheme}
-              onClick={() => handleColorChange(scheme)}
+              onClick={() => setColorScheme(scheme)}
               className={`px-3 py-1.5 rounded text-sm capitalize transition-colors ${
                 colorScheme === scheme ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
               }`}
@@ -139,18 +94,12 @@ function App() {
         </div>
       </div>
 
-      {/* Game Info */}
       <div>
         <h2 className="text-lg font-semibold mb-2">Game Info</h2>
         <div className="text-sm text-gray-400 space-y-1">
           <p>Move: {gameState.moveNumber}</p>
           <p>Orientation: {orientation}</p>
         </div>
-      </div>
-
-      <div className="text-xs text-gray-500 mt-4">
-        <p>Phase 2: Legal move enforcement</p>
-        <p>Click or drag pieces to move</p>
       </div>
     </div>
   )
