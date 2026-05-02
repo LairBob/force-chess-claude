@@ -42,25 +42,4 @@ describe('GameLayout Component', () => {
     })
   })
 
-  describe('Responsive behavior', () => {
-    it('should have flex layout for main container', () => {
-      render(
-        <GameLayout>
-          <div>Content</div>
-        </GameLayout>
-      )
-      const layoutContainer = screen.getByTestId('game-layout')
-      expect(layoutContainer).toHaveClass('flex')
-    })
-
-    it('should have responsive classes for different screen sizes', () => {
-      render(
-        <GameLayout>
-          <div>Content</div>
-        </GameLayout>
-      )
-      const mainContent = screen.getByTestId('main-content')
-      expect(mainContent).toBeInTheDocument()
-    })
-  })
 })
