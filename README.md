@@ -17,13 +17,13 @@ Create an educational and analytical chess application that goes beyond standard
 
 ## Technology Stack
 
-- **Framework**: React 18+ with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Chess Logic**: chess.js
-- **Board UI**: react-chessboard
-- **AI Engine**: stockfish.js (WebAssembly)
-- **Testing**: Vitest (unit/integration) + Playwright (E2E)
+- **Framework**: React 19 with TypeScript 5.9 (strict)
+- **Build Tool**: Vite 7
+- **Styling**: Tailwind CSS 4
+- **Chess Logic**: chess.js 1.4 (uses `.attackers()` for the threat analyzer)
+- **Board UI**: react-chessboard 5
+- **AI Engine**: stockfish.js (planned for Phase 6)
+- **Testing**: Vitest 4 (unit/integration) + Playwright 1.57 (E2E, chromium-only currently)
 
 ## Getting Started
 
@@ -75,33 +75,25 @@ npm run test:all     # Run all tests
 ```
 force-chess-claude/
 ├── docs/
-│   ├── charter/         # Project charter (machine-readable)
-│   ├── research/        # Research documentation
-│   ├── sessions/        # Session tracking
-│   └── handoffs/        # Handoff documents
+│   ├── research/        # Algorithm specs (visualization, AI, etc.)
+│   ├── handoffs/        # Phase-boundary notes
+│   └── superpowers/     # Specs and plans for in-progress work
 ├── src/
-│   ├── components/      # React components
-│   │   ├── Board/       # Chessboard wrapper
-│   │   ├── Controls/    # Game controls
-│   │   ├── Notation/    # Move list, FEN/PGN display
-│   │   ├── Visualization/ # Threat overlay
-│   │   └── Layout/      # App shell
+│   ├── components/      # React components (Board, Layout, plus
+│   │                    #   per-phase surfaces added as needed)
 │   ├── modules/         # Core logic modules
-│   │   ├── chess-engine/    # chess.js wrapper
-│   │   ├── notation/        # FEN/PGN parsing
-│   │   ├── threat-analyzer/ # Square control calculation
-│   │   ├── ai-opponent/     # Stockfish integration
-│   │   └── game-state/      # State management
-│   ├── hooks/           # Custom React hooks
-│   ├── types/           # TypeScript types
-│   └── utils/           # Utility functions
+│   │   └── chess-engine/    # chess.js wrapper
+│   └── hooks/           # Custom React hooks (useChessGame)
 ├── tests/
-│   ├── unit/           # Unit tests
-│   ├── integration/    # Integration tests
-│   └── e2e/            # End-to-end tests
-├── PROJECT_PROGRESS.json  # Master progress tracker
+│   ├── unit/            # Unit tests (engine, rules)
+│   ├── integration/     # Integration tests (hook, components)
+│   └── e2e/             # End-to-end tests (Playwright)
+├── CLAUDE.md            # Project conventions for AI assistants
+├── PROJECT_PROGRESS.json # Single source of truth for phase status
 └── package.json
 ```
+
+Additional component and module directories appear as later phases are built (e.g. `Controls/`, `Notation/`, `Visualization/`, `threat-analyzer/`, `ai-opponent/`).
 
 ## Development Roadmap
 
@@ -133,7 +125,7 @@ Coverage targets: 80% for lines, functions, branches, and statements.
 
 ## Contributing
 
-This project is developed with AI assistance using Claude Code. Each development session produces tracking artifacts for context continuity.
+This project is developed with AI assistance using Claude Code. See `CLAUDE.md` for conventions.
 
 ## License
 
