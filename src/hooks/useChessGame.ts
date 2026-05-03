@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { ChessEngine, type Move, type GameState, type Square } from '../modules/chess-engine'
 
 interface UseChessGameOptions {
@@ -10,9 +10,12 @@ interface UseChessGameReturn {
   fen: string
   gameState: GameState
   history: Move[]
-  lastMove: { from: Square; to: Square } | null
+  displayedMove: { from: Square; to: Square } | null
   selectedSquare: Square | null
   legalMoves: Square[]
+  displayedPly: number
+  canGoBack: boolean
+  canGoForward: boolean
 
   // Actions
   makeMove: (from: Square, to: Square, promotion?: string) => boolean
@@ -21,6 +24,15 @@ interface UseChessGameReturn {
   reset: () => void
   loadFEN: (fen: string) => boolean
   loadPGN: (pgn: string) => boolean
+  goPrev: () => void
+  goNext: () => void
+  goFirst: () => void
+  goLast: () => void
+  goToPly: (ply: number) => void
+
+  // Accessors
+  getFEN: () => string
+  getPGN: () => string
 
   // Board interaction helpers
   onPieceDrop: (source: Square, target: Square, piece: string) => boolean
@@ -34,8 +46,12 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const [fen, setFEN] = useState(() => engine.getFEN())
   const [gameState, setGameState] = useState<GameState>(() => engine.getGameState())
   const [history, setHistory] = useState<Move[]>([])
-  const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null)
+  const [displayedMove, setDisplayedMove] = useState<{ from: Square; to: Square } | null>(null)
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
+  const [redoStack, setRedoStack] = useState<Move[]>([])
+  // redoStackRef mirrors redoStack so that goNext can read the latest value
+  // synchronously even when called in the same React batch as goPrev.
+  const redoStackRef = useRef<Move[]>([])
 
   // `fen` is intentionally in the deps: legal moves depend on the engine's
   // mutable state, and `fen` changes whenever that state advances.
@@ -55,7 +71,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (from: Square, to: Square, promotion?: string): boolean => {
       const move = engine.makeMove({ from, to, promotion: promotion as 'q' | 'r' | 'b' | 'n' })
       if (move) {
-        setLastMove({ from, to })
+        redoStackRef.current = []
+        setRedoStack([])
+        setDisplayedMove({ from, to })
         setSelectedSquare(null)
         syncState()
         return true
@@ -72,13 +90,13 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const undoMove = useCallback((): boolean => {
     const undone = engine.undoMove()
     if (undone) {
-      // Also undo the lastMove tracking
+      // Also reset the displayed move to the previous one
       const newHistory = engine.getHistory()
       if (newHistory.length > 0) {
         const prevMove = newHistory[newHistory.length - 1]
-        setLastMove({ from: prevMove.from, to: prevMove.to })
+        setDisplayedMove({ from: prevMove.from, to: prevMove.to })
       } else {
-        setLastMove(null)
+        setDisplayedMove(null)
       }
       setSelectedSquare(null)
       syncState()
@@ -87,9 +105,165 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     return false
   }, [engine, syncState])
 
+  // NOTE: Never call engine.* or setX() inside a setState updater function —
+  // React 19 StrictMode can invoke updaters twice, which would double-apply
+  // moves to the engine. Always do the engine mutation first (synchronously),
+  // then call the setters with plain values or pure functional updates.
+  const goPrev = useCallback(() => {
+    const undone = engine.undoMove()
+    if (!undone) return
+    const nextStack = [...redoStackRef.current, undone]
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    const newHistory = engine.getHistory()
+    setDisplayedMove(
+      newHistory.length > 0
+        ? { from: newHistory[newHistory.length - 1].from, to: newHistory[newHistory.length - 1].to }
+        : null
+    )
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goNext = useCallback(() => {
+    const current = redoStackRef.current
+    if (current.length === 0) return
+    const next = current[current.length - 1]
+    const move = engine.makeMove({
+      from: next.from,
+      to: next.to,
+      promotion: next.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+    })
+    if (!move) return
+    const nextStack = current.slice(0, -1)
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    setDisplayedMove({ from: move.from, to: move.to })
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goFirst = useCallback(() => {
+    if (engine.getHistory().length === 0) return
+    const newlyUndone: Move[] = []
+    let undone = engine.undoMove()
+    while (undone) {
+      newlyUndone.push(undone)
+      undone = engine.undoMove()
+    }
+    // Mirror-ref must be updated synchronously alongside React state.
+    const nextStack = [...redoStackRef.current, ...newlyUndone]
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    setDisplayedMove(null)
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goLast = useCallback(() => {
+    const current = redoStackRef.current
+    if (current.length === 0) return
+    // Apply engine mutations synchronously, BEFORE any setState call.
+    const reversed = [...current].reverse()
+    let lastMove: Move | null = null
+    for (const m of reversed) {
+      const made = engine.makeMove({
+        from: m.from,
+        to: m.to,
+        promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+      })
+      if (made) lastMove = made
+    }
+    redoStackRef.current = []
+    setRedoStack([])
+    if (lastMove) setDisplayedMove({ from: lastMove.from, to: lastMove.to })
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goToPly = useCallback(
+    (targetPly: number) => {
+      const currentPly = engine.getHistory().length
+      const totalPly = currentPly + redoStackRef.current.length
+      if (targetPly < 0 || targetPly > totalPly || targetPly === currentPly) return
+
+      if (targetPly < currentPly) {
+        // Walk back: pop moves from engine and push onto redoStack.
+        const stepsBack = currentPly - targetPly
+        const popped: Move[] = []
+        for (let i = 0; i < stepsBack; i++) {
+          const undone = engine.undoMove()
+          if (undone) popped.push(undone)
+        }
+        const newHistory = engine.getHistory()
+        const nextStack = [...redoStackRef.current, ...popped]
+        redoStackRef.current = nextStack
+        setRedoStack(nextStack)
+        setDisplayedMove(
+          newHistory.length > 0
+            ? {
+                from: newHistory[newHistory.length - 1].from,
+                to: newHistory[newHistory.length - 1].to,
+              }
+            : null
+        )
+      } else {
+        // Walk forward: pop from redoStack and apply to engine — synchronously,
+        // BEFORE the setState calls.
+        const stepsForward = targetPly - currentPly
+        const remaining = [...redoStackRef.current]
+        let lastMove: Move | null = null
+        for (let i = 0; i < stepsForward && remaining.length > 0; i++) {
+          const m = remaining.pop()!
+          const made = engine.makeMove({
+            from: m.from,
+            to: m.to,
+            promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+          })
+          if (made) lastMove = made
+        }
+        redoStackRef.current = remaining
+        setRedoStack(remaining)
+        if (lastMove) setDisplayedMove({ from: lastMove.from, to: lastMove.to })
+      }
+      setSelectedSquare(null)
+      syncState()
+    },
+    [engine, syncState]
+  )
+
+  const getFEN = useCallback(() => engine.getFEN(), [engine])
+
+  const getPGN = useCallback(() => {
+    // chess.js's pgn() reflects only what's currently in the engine. When the user
+    // has navigated back, the engine is at the displayed ply, not the end of the
+    // game — so a naive engine.getPGN() would only return moves up to the displayed
+    // ply. To return the canonical full-game PGN, temporarily replay the redoStack
+    // forward, capture pgn(), then unwind to restore the engine to the displayed ply.
+    const stackCopy = [...redoStackRef.current]
+    const replayed: Move[] = []
+    while (stackCopy.length > 0) {
+      const m = stackCopy.pop()!
+      const made = engine.makeMove({
+        from: m.from,
+        to: m.to,
+        promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+      })
+      if (made) replayed.push(made)
+    }
+    const pgn = engine.getPGN()
+    // Restore engine to original displayed ply
+    for (let i = 0; i < replayed.length; i++) {
+      engine.undoMove()
+    }
+    return pgn
+  }, [engine])
+
   const reset = useCallback(() => {
     engine.reset()
-    setLastMove(null)
+    redoStackRef.current = []
+    setRedoStack([])
+    setDisplayedMove(null)
     setSelectedSquare(null)
     syncState()
   }, [engine, syncState])
@@ -98,7 +272,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (newFEN: string): boolean => {
       const success = engine.loadFEN(newFEN)
       if (success) {
-        setLastMove(null)
+        redoStackRef.current = []
+        setRedoStack([])
+        setDisplayedMove(null)
         setSelectedSquare(null)
         syncState()
       }
@@ -110,18 +286,24 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const loadPGN = useCallback(
     (pgn: string): boolean => {
       const success = engine.loadPGN(pgn)
-      if (success) {
-        const newHistory = engine.getHistory()
-        if (newHistory.length > 0) {
-          const lastMoveInHistory = newHistory[newHistory.length - 1]
-          setLastMove({ from: lastMoveInHistory.from, to: lastMoveInHistory.to })
-        } else {
-          setLastMove(null)
-        }
-        setSelectedSquare(null)
-        syncState()
+      if (!success) return false
+
+      const fullHistory = engine.getHistory() // engine is at the END of the game now
+      // Walk back to ply 0
+      while (engine.undoMove()) {
+        /* unwind */
       }
-      return success
+
+      // redoStack invariant: top-of-stack (last element) = next forward move. So move 1 must be
+      // the last element of the array. Reverse the history (which is move 1..N) accordingly.
+      const stack = [...fullHistory].reverse()
+
+      redoStackRef.current = stack
+      setRedoStack(stack)
+      setDisplayedMove(null)
+      setSelectedSquare(null)
+      syncState()
+      return true
     },
     [engine, syncState]
   )
@@ -189,19 +371,33 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     // Don't clear selection on drag end - let onPieceDrop handle it
   }, [])
 
+  const displayedPly = history.length
+  const canGoBack = history.length > 0
+  const canGoForward = redoStack.length > 0
+
   return {
     fen,
     gameState,
     history,
-    lastMove,
+    displayedMove,
     selectedSquare,
     legalMoves,
+    displayedPly,
+    canGoBack,
+    canGoForward,
     makeMove,
     selectSquare,
     undoMove,
     reset,
     loadFEN,
     loadPGN,
+    goPrev,
+    goNext,
+    goFirst,
+    goLast,
+    goToPly,
+    getFEN,
+    getPGN,
     onPieceDrop,
     onSquareClick,
     onPieceDragBegin,

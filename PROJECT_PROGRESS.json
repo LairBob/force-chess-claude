@@ -1,6 +1,6 @@
 {
   "projectName": "Force Chess",
-  "lastUpdated": "2026-05-02T00:00:00Z",
+  "lastUpdated": "2026-05-03T00:00:00Z",
   "currentPhase": "phase-3",
   "currentSession": null,
 
@@ -56,10 +56,10 @@
       "sessions": [],
       "deliverables": [
         { "id": "p3-d1", "task": "Add undo/redo functionality", "status": "completed", "notes": "Undo implemented in Phase 2" },
-        { "id": "p3-d2", "task": "PGN import/export", "status": "pending" },
-        { "id": "p3-d3", "task": "FEN import/export", "status": "pending" },
-        { "id": "p3-d4", "task": "Game navigation (first, prev, next, last)", "status": "pending" },
-        { "id": "p3-d5", "task": "Timer/clock functionality", "status": "pending" }
+        { "id": "p3-d2", "task": "PGN import/export", "status": "completed" },
+        { "id": "p3-d3", "task": "FEN import/export", "status": "completed" },
+        { "id": "p3-d4", "task": "Game navigation (first, prev, next, last)", "status": "completed" },
+        { "id": "p3-d5", "task": "Timer/clock functionality", "status": "pending", "notes": "Deferred to a later spec — out of scope of the 2026-05-03 Phase 3 design. Phase 3 status stays 'pending' until this ships." }
       ]
     },
     {
