@@ -56,6 +56,9 @@ pnpm-debug.log*
 # Claude Code background-agent worktrees (transient; isolated copies of the repo)
 .claude/worktrees/
 
+# Project-local feature worktrees (created by superpowers using-git-worktrees skill)
+.worktrees/
+
 # Playwright MCP browser session artifacts (transient; created by the MCP server)
 .playwright-mcp/
 
