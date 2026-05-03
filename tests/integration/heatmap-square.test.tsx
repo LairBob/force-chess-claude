@@ -130,3 +130,47 @@ describe('HeatmapSquare — saturation logic', () => {
     }
   })
 })
+
+describe('HeatmapSquare — unilateral marker', () => {
+  it('renders a unilateral marker when min(N_w, N_b) === 0 && max > 0', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 1, blackAttackers: 0 },
+    })
+    expect(container.querySelector('[data-unilateral="true"]')).not.toBeNull()
+  })
+
+  it('renders no unilateral marker when both counts are 0', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 0, blackAttackers: 0 },
+    })
+    expect(container.querySelector('[data-unilateral="true"]')).toBeNull()
+  })
+
+  it('renders no unilateral marker when both sides have at least 1', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 2, blackAttackers: 1 },
+    })
+    expect(container.querySelector('[data-unilateral="true"]')).toBeNull()
+  })
+})
+
+describe('HeatmapSquare — inert lock badge', () => {
+  it('renders a lock SVG when isInertPiece is true', () => {
+    const { container } = renderSquare({ isInertPiece: true })
+    expect(container.querySelector('[data-inert-lock="true"]')).not.toBeNull()
+  })
+
+  it('does NOT render the lock when isInertPiece is false', () => {
+    const { container } = renderSquare({ isInertPiece: false })
+    expect(container.querySelector('[data-inert-lock="true"]')).toBeNull()
+  })
+
+  it('lock and stripes are independent (lock present, no stripes)', () => {
+    const { container } = renderSquare({
+      isInertPiece: true,
+      control: { whiteAttackers: 0, blackAttackers: 0 },
+    })
+    expect(container.querySelector('[data-inert-lock="true"]')).not.toBeNull()
+    expect(container.querySelectorAll('[data-stripe]')).toHaveLength(0)
+  })
+})
