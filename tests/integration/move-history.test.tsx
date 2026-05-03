@@ -17,7 +17,7 @@ function makeMove(san: string): Move {
 
 describe('MoveHistory', () => {
   it('renders empty state when history is empty', () => {
-    render(<MoveHistory history={[]} />)
+    render(<MoveHistory history={[]} currentPly={0} onJumpToPly={() => {}} />)
     expect(screen.getByText('No moves yet')).toBeInTheDocument()
   })
 
@@ -29,13 +29,13 @@ describe('MoveHistory', () => {
       makeMove('Nc6'),
       makeMove('Bb5'),
     ]
-    render(<MoveHistory history={history} />)
+    render(<MoveHistory history={history} currentPly={0} onJumpToPly={() => {}} />)
 
     expect(screen.getByTestId('white-move-1')).toHaveTextContent('e4')
     expect(screen.getByTestId('black-move-1')).toHaveTextContent('e5')
     expect(screen.getByTestId('white-move-2')).toHaveTextContent('Nf3')
     expect(screen.getByTestId('black-move-2')).toHaveTextContent('Nc6')
     expect(screen.getByTestId('white-move-3')).toHaveTextContent('Bb5')
-    expect(screen.getByTestId('black-move-3')).toHaveTextContent('')
+    expect(screen.queryByTestId('black-move-3')).not.toBeInTheDocument()
   })
 })
