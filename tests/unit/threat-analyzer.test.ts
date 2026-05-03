@@ -87,7 +87,7 @@ describe('analyze() — pseudo-legal counts', () => {
     expect(map.squares.e5.blackAttackers).toBe(1)
   })
 
-  it('inertPieceSquares is empty in the starting position (and stays empty until Task 3)', () => {
+  it('inertPieceSquares is empty in the starting position', () => {
     const map = analyze(STARTING_FEN)
     expect(map.inertPieceSquares.size).toBe(0)
   })
@@ -134,5 +134,15 @@ describe('analyze() — inert (absolute pin) detection', () => {
     const map = analyze(fen)
     expect(map.inertPieceSquares.has('e3')).toBe(true)
     expect(map.inertPieceSquares.has('e6')).toBe(true)
+  })
+
+  it('does NOT flag unrelated pieces when the king is already in check', () => {
+    // White king e1 is in check from black rook a1 along rank 1.
+    // White knight g3 is on no line to the king. Without the in-check guard,
+    // the analyzer would falsely flag g3 because removing it leaves e1 still
+    // attacked by the pre-existing checker.
+    const fen = '4k3/8/8/8/8/6N1/8/r3K3 w - - 0 1'
+    const map = analyze(fen)
+    expect(map.inertPieceSquares.has('g3')).toBe(false)
   })
 })

@@ -28,24 +28,18 @@ export function analyze(fen: string): ThreatMap {
 
 function isAbsolutelyPinned(fen: string, sq: Square, color: Color): boolean {
   const test = new Chess(fen)
-  test.remove(sq)
   const kingSq = findKing(test, color)
   if (!kingSq) return false
   const enemy: Color = color === 'w' ? 'b' : 'w'
+  // If the king is already in check, removing the candidate piece can't *cause* a
+  // pin discovery — any "now-in-check" result is the pre-existing checker still
+  // attacking, not this piece's removal. Skip to avoid false positives.
+  if (test.isAttacked(kingSq, enemy)) return false
+  test.remove(sq)
   return test.isAttacked(kingSq, enemy)
 }
 
 function findKing(chess: Chess, color: Color): Square | null {
-  const board = chess.board()
-  for (let r = 0; r < 8; r++) {
-    for (let f = 0; f < 8; f++) {
-      const cell = board[r][f]
-      if (cell && cell.type === 'k' && cell.color === color) {
-        const file = 'abcdefgh'[f]
-        const rank = 8 - r
-        return `${file}${rank}` as Square
-      }
-    }
-  }
-  return null
+  const found = chess.findPiece({ type: 'k', color })
+  return found.length > 0 ? found[0] : null
 }
