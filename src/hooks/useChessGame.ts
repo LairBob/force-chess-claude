@@ -95,6 +95,10 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     return false
   }, [engine, syncState])
 
+  // NOTE: Never call engine.* or setX() inside a setState updater function —
+  // React 19 StrictMode can invoke updaters twice, which would double-apply
+  // moves to the engine. Always do the engine mutation first (synchronously),
+  // then call the setters with plain values or pure functional updates.
   const goPrev = useCallback(() => {
     const undone = engine.undoMove()
     if (!undone) return
@@ -111,10 +115,6 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     syncState()
   }, [engine, syncState])
 
-  // NOTE: Never call engine.* or setX() inside a setState updater function —
-  // React 19 StrictMode can invoke updaters twice, which would double-apply
-  // moves to the engine. Always do the engine mutation first (synchronously),
-  // then call the setters with plain values or pure functional updates.
   const goNext = useCallback(() => {
     const current = redoStackRef.current
     if (current.length === 0) return
