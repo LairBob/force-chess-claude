@@ -1,30 +1,52 @@
 import { useState } from 'react'
 import { ChessBoard, SQUARE_COLORS } from './components/Board'
 import { GameLayout } from './components/Layout'
-import { Header } from './components/Controls'
+import { Header, GameNav, LoadDialog, ExportPanel } from './components/Controls'
 import { MoveHistory } from './components/Notation'
 import { useChessGame } from './hooks'
+import { useGameKeyboard } from './hooks/useGameKeyboard'
 
 type ColorScheme = keyof typeof SQUARE_COLORS
 
 function App() {
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [colorScheme, setColorScheme] = useState<ColorScheme>('green')
+  const [isLoadOpen, setIsLoadOpen] = useState(false)
 
   const {
     fen,
     gameState,
     history,
     displayedMove,
+    displayedPly,
     selectedSquare,
     legalMoves,
+    canGoBack,
+    canGoForward,
     onPieceDrop,
     onSquareClick,
     onPieceDragBegin,
     onPieceDragEnd,
     undoMove,
     reset,
+    loadFEN,
+    loadPGN,
+    goFirst,
+    goPrev,
+    goNext,
+    goLast,
+    goToPly,
+    getFEN,
+    getPGN,
   } = useChessGame()
+
+  useGameKeyboard({
+    onPrev: goPrev,
+    onNext: goNext,
+    onFirst: goFirst,
+    onLast: goLast,
+    isModalOpen: isLoadOpen,
+  })
 
   const handleFlipBoard = () => {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'))
@@ -34,15 +56,9 @@ function App() {
     if (gameState.isCheckmate) {
       return `Checkmate! ${gameState.turn === 'w' ? 'Black' : 'White'} wins!`
     }
-    if (gameState.isStalemate) {
-      return 'Stalemate - Draw!'
-    }
-    if (gameState.isDraw) {
-      return 'Draw!'
-    }
-    if (gameState.isCheck) {
-      return `${gameState.turn === 'w' ? 'White' : 'Black'} is in check!`
-    }
+    if (gameState.isStalemate) return 'Stalemate - Draw!'
+    if (gameState.isDraw) return 'Draw!'
+    if (gameState.isCheck) return `${gameState.turn === 'w' ? 'White' : 'Black'} is in check!`
     return `${gameState.turn === 'w' ? 'White' : 'Black'} to move`
   }
 
@@ -52,6 +68,7 @@ function App() {
       onUndo={undoMove}
       onFlipBoard={handleFlipBoard}
       onNewGame={reset}
+      onLoad={() => setIsLoadOpen(true)}
     />
   )
 
@@ -74,8 +91,20 @@ function App() {
 
       <div>
         <h2 className="text-lg font-semibold mb-2">Move History</h2>
-        <MoveHistory history={history} />
+        <GameNav
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
+          onFirst={goFirst}
+          onPrev={goPrev}
+          onNext={goNext}
+          onLast={goLast}
+        />
+        <div className="mt-2">
+          <MoveHistory history={history} currentPly={displayedPly} onJumpToPly={goToPly} />
+        </div>
       </div>
+
+      <ExportPanel getFEN={getFEN} getPGN={getPGN} />
 
       <div>
         <h2 className="text-lg font-semibold mb-2">Board Colors</h2>
@@ -83,6 +112,7 @@ function App() {
           {(Object.keys(SQUARE_COLORS) as ColorScheme[]).map((scheme) => (
             <button
               key={scheme}
+              type="button"
               onClick={() => setColorScheme(scheme)}
               className={`px-3 py-1.5 rounded text-sm capitalize transition-colors ${
                 colorScheme === scheme ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
@@ -98,6 +128,7 @@ function App() {
         <h2 className="text-lg font-semibold mb-2">Game Info</h2>
         <div className="text-sm text-gray-400 space-y-1">
           <p>Move: {gameState.moveNumber}</p>
+          <p>Ply: {displayedPly}</p>
           <p>Orientation: {orientation}</p>
         </div>
       </div>
@@ -105,21 +136,29 @@ function App() {
   )
 
   return (
-    <GameLayout header={header} sidebar={sidebar}>
-      <ChessBoard
-        position={fen}
-        orientation={orientation}
-        lightSquareColor={SQUARE_COLORS[colorScheme].light}
-        darkSquareColor={SQUARE_COLORS[colorScheme].dark}
-        selectedSquare={selectedSquare}
-        legalMoves={legalMoves}
-        lastMove={displayedMove}
-        onPieceDrop={onPieceDrop}
-        onSquareClick={onSquareClick}
-        onPieceDragBegin={onPieceDragBegin}
-        onPieceDragEnd={onPieceDragEnd}
+    <>
+      <GameLayout header={header} sidebar={sidebar}>
+        <ChessBoard
+          position={fen}
+          orientation={orientation}
+          lightSquareColor={SQUARE_COLORS[colorScheme].light}
+          darkSquareColor={SQUARE_COLORS[colorScheme].dark}
+          selectedSquare={selectedSquare}
+          legalMoves={legalMoves}
+          lastMove={displayedMove}
+          onPieceDrop={onPieceDrop}
+          onSquareClick={onSquareClick}
+          onPieceDragBegin={onPieceDragBegin}
+          onPieceDragEnd={onPieceDragEnd}
+        />
+      </GameLayout>
+      <LoadDialog
+        isOpen={isLoadOpen}
+        onClose={() => setIsLoadOpen(false)}
+        onLoadFEN={loadFEN}
+        onLoadPGN={loadPGN}
       />
-    </GameLayout>
+    </>
   )
 }
 
