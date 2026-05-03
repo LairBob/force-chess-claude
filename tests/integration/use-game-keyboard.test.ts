@@ -86,6 +86,50 @@ describe('useGameKeyboard', () => {
     expect(onNext).not.toHaveBeenCalled()
   })
 
+  describe('H key — onToggleHeatmap', () => {
+    it('calls onToggleHeatmap when h is pressed', () => {
+      const onToggleHeatmap = vi.fn()
+      renderHook(() =>
+        useGameKeyboard({ onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen: false })
+      )
+      fireKey('h')
+      expect(onToggleHeatmap).toHaveBeenCalledTimes(1)
+    })
+
+    it('also responds to capital H', () => {
+      const onToggleHeatmap = vi.fn()
+      renderHook(() =>
+        useGameKeyboard({ onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen: false })
+      )
+      fireKey('H')
+      expect(onToggleHeatmap).toHaveBeenCalledTimes(1)
+    })
+
+    it('does NOT call onToggleHeatmap when modal is open', () => {
+      const onToggleHeatmap = vi.fn()
+      renderHook(() =>
+        useGameKeyboard({ onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen: true })
+      )
+      fireKey('h')
+      expect(onToggleHeatmap).not.toHaveBeenCalled()
+    })
+
+    it('is a no-op if onToggleHeatmap is undefined', () => {
+      renderHook(() => useGameKeyboard({ onPrev, onNext, onFirst, onLast, isModalOpen: false }))
+      expect(() => fireKey('h')).not.toThrow()
+    })
+
+    it('does not interfere with arrow keys', () => {
+      const onToggleHeatmap = vi.fn()
+      renderHook(() =>
+        useGameKeyboard({ onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen: false })
+      )
+      fireKey('ArrowLeft')
+      expect(onPrev).toHaveBeenCalledTimes(1)
+      expect(onToggleHeatmap).not.toHaveBeenCalled()
+    })
+  })
+
   it('removes the listener on unmount', () => {
     const { unmount } = renderHook(() =>
       useGameKeyboard({ onPrev, onNext, onFirst, onLast, isModalOpen: false })

@@ -6,15 +6,21 @@ import { ChessBoard } from '../../src/components/Board'
 // In v5 all configuration goes through a single `options` prop, so we
 // surface its fields as data attributes for test assertions.
 vi.mock('react-chessboard', () => ({
-  Chessboard: ({ options }: { options: Record<string, unknown> }) => (
-    <div
-      data-testid="mock-chessboard"
-      data-position={options?.position as string}
-      data-orientation={options?.boardOrientation as string}
-    >
-      Mocked Chessboard
-    </div>
-  ),
+  Chessboard: ({ options }: { options: Record<string, unknown> }) => {
+    const renderer = options?.squareRenderer as
+      | ((args: { square: string }) => React.ReactNode)
+      | undefined
+    return (
+      <div
+        data-testid="mock-chessboard"
+        data-position={options?.position as string}
+        data-orientation={options?.boardOrientation as string}
+      >
+        Mocked Chessboard
+        {renderer && <div data-testid="mock-square-render-e4">{renderer({ square: 'e4' })}</div>}
+      </div>
+    )
+  },
 }))
 
 describe('ChessBoard Component', () => {
@@ -50,6 +56,15 @@ describe('ChessBoard Component', () => {
       render(<ChessBoard orientation="black" />)
       const mockBoard = screen.getByTestId('mock-chessboard')
       expect(mockBoard).toHaveAttribute('data-orientation', 'black')
+    })
+
+    it('passes the squareRenderer prop through to react-chessboard options', () => {
+      const customRenderer = (args: { square: string }) => (
+        <div data-testid={`hm-${args.square}`}>HM:{args.square}</div>
+      )
+      const { getByTestId } = render(<ChessBoard squareRenderer={customRenderer} />)
+      const wrapper = getByTestId('mock-square-render-e4')
+      expect(wrapper.querySelector('[data-testid="hm-e4"]')).not.toBeNull()
     })
   })
 })

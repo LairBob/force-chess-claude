@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { ChessBoard, SQUARE_COLORS } from './components/Board'
+import { ChessBoard, SQUARE_COLORS, isLightSquare } from './components/Board'
 import { GameLayout } from './components/Layout'
 import { Header, GameNav, LoadDialog, ExportPanel } from './components/Controls'
 import { MoveHistory } from './components/Notation'
-import { useChessGame } from './hooks'
+import { HeatmapSquare } from './components/Heatmap'
+import { useChessGame, useThreatMap } from './hooks'
 import { useGameKeyboard } from './hooks/useGameKeyboard'
+import type { Square } from 'chess.js'
 
 type ColorScheme = keyof typeof SQUARE_COLORS
 
@@ -12,6 +14,7 @@ function App() {
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [colorScheme, setColorScheme] = useState<ColorScheme>('green')
   const [isLoadOpen, setIsLoadOpen] = useState(false)
+  const [heatmapEnabled, setHeatmapEnabled] = useState(true)
 
   const {
     fen,
@@ -40,11 +43,14 @@ function App() {
     getPGN,
   } = useChessGame()
 
+  const threatMap = useThreatMap(fen)
+
   useGameKeyboard({
     onPrev: goPrev,
     onNext: goNext,
     onFirst: goFirst,
     onLast: goLast,
+    onToggleHeatmap: () => setHeatmapEnabled((v) => !v),
     isModalOpen: isLoadOpen,
   })
 
@@ -61,6 +67,17 @@ function App() {
     if (gameState.isCheck) return `${gameState.turn === 'w' ? 'White' : 'Black'} is in check!`
     return `${gameState.turn === 'w' ? 'White' : 'Black'} to move`
   }
+
+  const squareRenderer = heatmapEnabled
+    ? ({ square }: { square: Square }) => (
+        <HeatmapSquare
+          square={square}
+          control={threatMap.squares[square]}
+          isInertPiece={threatMap.inertPieceSquares.has(square)}
+          isLightSquare={isLightSquare(square)}
+        />
+      )
+    : undefined
 
   const header = (
     <Header
@@ -125,6 +142,20 @@ function App() {
       </div>
 
       <div>
+        <h2 className="text-lg font-semibold mb-2">Heatmap</h2>
+        <button
+          type="button"
+          onClick={() => setHeatmapEnabled((v) => !v)}
+          aria-pressed={heatmapEnabled}
+          className={`px-3 py-1.5 rounded text-sm transition-colors ${
+            heatmapEnabled ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+          }`}
+        >
+          {heatmapEnabled ? 'On' : 'Off'} (H)
+        </button>
+      </div>
+
+      <div>
         <h2 className="text-lg font-semibold mb-2">Game Info</h2>
         <div className="text-sm text-gray-400 space-y-1">
           <p>Move: {gameState.moveNumber}</p>
@@ -146,6 +177,7 @@ function App() {
           selectedSquare={selectedSquare}
           legalMoves={legalMoves}
           lastMove={displayedMove}
+          squareRenderer={squareRenderer}
           onPieceDrop={onPieceDrop}
           onSquareClick={onSquareClick}
           onPieceDragBegin={onPieceDragBegin}

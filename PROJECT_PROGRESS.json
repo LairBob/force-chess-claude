@@ -65,14 +65,15 @@
     {
       "id": "phase-4",
       "name": "Threat Visualization",
-      "status": "pending",
+      "status": "completed",
+      "completedAt": "2026-05-03T00:00:00Z",
       "sessions": [],
       "deliverables": [
-        { "id": "p4-d1", "task": "Implement threat analyzer using chess.js .attackers(square, color)", "status": "pending", "notes": "chess.js v1.4+ exposes attackers() natively — no need to reimplement attacker enumeration" },
-        { "id": "p4-d2", "task": "Add per-square control differential calculation (whiteAttacks - blackAttacks)", "status": "pending" },
-        { "id": "p4-d3", "task": "Implement heatmap overlay using react-chessboard v5 squareRenderer", "status": "pending" },
-        { "id": "p4-d4", "task": "Color mapping per docs/research/visualization.md (green/red/yellow with intensity)", "status": "pending" },
-        { "id": "p4-d5", "task": "Optional numeric overlay showing differential per square", "status": "pending" }
+        { "id": "p4-d1", "task": "Implement threat analyzer using chess.js .attackers(square, color)", "status": "completed", "notes": "Shipped per docs/superpowers/specs/2026-05-03-phase-4-threat-heatmap-design.md §6–7; analyzer also detects absolutely-pinned non-king pieces and skips when king is already in check (false-positive guard)." },
+        { "id": "p4-d2", "task": "Add per-square control differential calculation (whiteAttacks - blackAttacks)", "status": "completed", "notes": "Per-square pseudo-legal counts are computed by the analyzer. The differential is derived in the renderer (HeatmapSquare) rather than stored, since the paired-indicator scheme uses both raw counts directly." },
+        { "id": "p4-d3", "task": "Implement heatmap overlay using react-chessboard v5 squareRenderer", "status": "completed" },
+        { "id": "p4-d4", "task": "Color mapping per docs/superpowers/specs/2026-05-03-phase-4-threat-heatmap-design.md (paired top/bottom stripe indicators with sqrt-curve saturation, 3px inset red border for unilateral squares, monotone SVG lock badge for absolutely-pinned non-king pieces)", "status": "completed" },
+        { "id": "p4-d5", "task": "Optional numeric overlay showing differential per square", "status": "deferred", "notes": "Deferred per docs/superpowers/specs/2026-05-03-phase-4-threat-heatmap-design.md §2 — paired indicators carry the count, making a numeric overlay redundant. Revisit only if accessibility feedback requests it." }
       ]
     },
     {
@@ -134,8 +135,8 @@
 
   "metrics": {
     "totalSessions": 3,
-    "completedPhases": 3,
+    "completedPhases": 4,
     "totalPhases": 9,
-    "overallProgress": 33
+    "overallProgress": 44
   }
 }

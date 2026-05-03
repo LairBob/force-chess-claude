@@ -5,6 +5,7 @@ interface UseGameKeyboardOptions {
   onNext: () => void
   onFirst: () => void
   onLast: () => void
+  onToggleHeatmap?: () => void
   isModalOpen: boolean
 }
 
@@ -17,7 +18,7 @@ function isTypingTarget(el: Element | null): boolean {
 }
 
 export function useGameKeyboard(options: UseGameKeyboardOptions): void {
-  const { onPrev, onNext, onFirst, onLast, isModalOpen } = options
+  const { onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen } = options
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -41,10 +42,17 @@ export function useGameKeyboard(options: UseGameKeyboardOptions): void {
           e.preventDefault()
           onLast()
           return
+        case 'h':
+        case 'H':
+          if (onToggleHeatmap) {
+            e.preventDefault()
+            onToggleHeatmap()
+          }
+          return
       }
     }
 
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [onPrev, onNext, onFirst, onLast, isModalOpen])
+  }, [onPrev, onNext, onFirst, onLast, onToggleHeatmap, isModalOpen])
 }
