@@ -72,7 +72,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const undoMove = useCallback((): boolean => {
     const undone = engine.undoMove()
     if (undone) {
-      // Also undo the lastMove tracking
+      // Also reset the displayed move to the previous one
       const newHistory = engine.getHistory()
       if (newHistory.length > 0) {
         const prevMove = newHistory[newHistory.length - 1]

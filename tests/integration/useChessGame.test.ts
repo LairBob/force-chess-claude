@@ -68,7 +68,7 @@ describe('useChessGame Hook', () => {
       expect(result.current.history).toHaveLength(0)
     })
 
-    it('should update lastMove after making a move', () => {
+    it('should update displayedMove after making a move', () => {
       const { result } = renderHook(() => useChessGame())
 
       act(() => {
@@ -158,7 +158,7 @@ describe('useChessGame Hook', () => {
       })
     })
 
-    it('should update lastMove after undo', () => {
+    it('should update displayedMove after undo', () => {
       const { result } = renderHook(() => useChessGame())
 
       act(() => {
@@ -173,7 +173,7 @@ describe('useChessGame Hook', () => {
       expect(result.current.displayedMove).toEqual({ from: 'e2', to: 'e4' })
     })
 
-    it('should clear lastMove when undoing first move', () => {
+    it('should clear displayedMove when undoing first move', () => {
       const { result } = renderHook(() => useChessGame())
 
       act(() => {
