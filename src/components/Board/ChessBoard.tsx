@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
+import type { SquareRenderer } from 'react-chessboard'
 import { Chessboard } from 'react-chessboard'
 import type { Square } from 'chess.js'
 import {
   DEFAULT_BOARD_CONFIG,
   HIGHLIGHT_COLORS,
+  isLightSquare,
   type ChessBoardProps,
   type SquareStyles,
 } from './types'
@@ -28,13 +30,6 @@ interface PieceDragArgs {
   square: string | null
 }
 
-// Helper to check if a square is light colored
-function isLightSquare(square: Square): boolean {
-  const file = square.charCodeAt(0) - 97 // 'a' = 0, 'b' = 1, etc.
-  const rank = parseInt(square[1]) - 1 // '1' = 0, '2' = 1, etc.
-  return (file + rank) % 2 === 1
-}
-
 export function ChessBoard({
   position = DEFAULT_BOARD_CONFIG.position,
   orientation = DEFAULT_BOARD_CONFIG.orientation,
@@ -46,6 +41,7 @@ export function ChessBoard({
   selectedSquare,
   legalMoves = [],
   lastMove,
+  squareRenderer,
   onPieceDrop,
   onSquareClick,
   onPieceDragBegin,
@@ -119,6 +115,13 @@ export function ChessBoard({
     }
   }
 
+  // Adapt the external squareRenderer prop to the react-chessboard SquareRenderer
+  // signature, which requires a JSX.Element return and receives { piece, square, children }.
+  const squareRendererAdapter = useMemo((): SquareRenderer | undefined => {
+    if (!squareRenderer) return undefined
+    return ({ square }) => <>{squareRenderer({ square: square as Square })}</>
+  }, [squareRenderer])
+
   return (
     <div data-testid="chess-board-container" className="w-full max-w-[600px] mx-auto">
       <Chessboard
@@ -134,6 +137,7 @@ export function ChessBoard({
           onPieceDrop: handlePieceDrop,
           onSquareClick: handleSquareClick,
           onPieceDrag: handlePieceDrag,
+          squareRenderer: squareRendererAdapter,
         }}
       />
     </div>

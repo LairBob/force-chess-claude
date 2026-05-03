@@ -1,4 +1,5 @@
 import type { Square } from 'chess.js'
+import type React from 'react'
 
 export type { Square }
 
@@ -67,11 +68,19 @@ export interface ChessBoardProps {
   selectedSquare?: Square | null
   legalMoves?: Square[]
   lastMove?: { from: Square; to: Square } | null
+  // Per-square render hook (used by the heatmap layer)
+  squareRenderer?: (args: { square: Square }) => React.ReactNode
   // Callbacks
   onPieceDrop?: (sourceSquare: Square, targetSquare: Square, piece: string) => boolean
   onSquareClick?: (square: Square) => void
   onPieceDragBegin?: (piece: string, sourceSquare: Square) => void
   onPieceDragEnd?: (piece: string, sourceSquare: Square) => void
+}
+
+export function isLightSquare(square: Square): boolean {
+  const file = square.charCodeAt(0) - 97
+  const rank = parseInt(square[1]) - 1
+  return (file + rank) % 2 === 1
 }
 
 // Highlight colors
