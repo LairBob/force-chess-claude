@@ -13,6 +13,7 @@ interface UseChessGameReturn {
   displayedMove: { from: Square; to: Square } | null
   selectedSquare: Square | null
   legalMoves: Square[]
+  displayedPly: number
   canGoBack: boolean
   canGoForward: boolean
 
@@ -25,6 +26,9 @@ interface UseChessGameReturn {
   loadPGN: (pgn: string) => boolean
   goPrev: () => void
   goNext: () => void
+  goFirst: () => void
+  goLast: () => void
+  goToPly: (ply: number) => void
 
   // Board interaction helpers
   onPieceDrop: (source: Square, target: Square, piece: string) => boolean
@@ -133,6 +137,95 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     syncState()
   }, [engine, syncState])
 
+  const goFirst = useCallback(() => {
+    // Pop moves off the engine until back at ply 0; collect them in order.
+    const newlyUndone: Move[] = []
+    let undone = engine.undoMove()
+    while (undone) {
+      newlyUndone.push(undone)
+      undone = engine.undoMove()
+    }
+    // Mirror-ref must be updated synchronously alongside React state.
+    const nextStack = [...redoStackRef.current, ...newlyUndone]
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    setDisplayedMove(null)
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goLast = useCallback(() => {
+    const current = redoStackRef.current
+    if (current.length === 0) return
+    // Apply engine mutations synchronously, BEFORE any setState call.
+    const reversed = [...current].reverse()
+    let lastMove: Move | null = null
+    for (const m of reversed) {
+      const made = engine.makeMove({
+        from: m.from,
+        to: m.to,
+        promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+      })
+      if (made) lastMove = made
+    }
+    redoStackRef.current = []
+    setRedoStack([])
+    if (lastMove) setDisplayedMove({ from: lastMove.from, to: lastMove.to })
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  const goToPly = useCallback(
+    (targetPly: number) => {
+      const currentPly = engine.getHistory().length
+      const totalPly = currentPly + redoStackRef.current.length
+      if (targetPly < 0 || targetPly > totalPly || targetPly === currentPly) return
+
+      if (targetPly < currentPly) {
+        // Walk back: pop moves from engine and push onto redoStack.
+        const stepsBack = currentPly - targetPly
+        const popped: Move[] = []
+        for (let i = 0; i < stepsBack; i++) {
+          const undone = engine.undoMove()
+          if (undone) popped.push(undone)
+        }
+        const newHistory = engine.getHistory()
+        const nextStack = [...redoStackRef.current, ...popped]
+        redoStackRef.current = nextStack
+        setRedoStack(nextStack)
+        setDisplayedMove(
+          newHistory.length > 0
+            ? {
+                from: newHistory[newHistory.length - 1].from,
+                to: newHistory[newHistory.length - 1].to,
+              }
+            : null
+        )
+      } else {
+        // Walk forward: pop from redoStack and apply to engine — synchronously,
+        // BEFORE the setState calls.
+        const stepsForward = targetPly - currentPly
+        const remaining = [...redoStackRef.current]
+        let lastMove: Move | null = null
+        for (let i = 0; i < stepsForward && remaining.length > 0; i++) {
+          const m = remaining.pop()!
+          const made = engine.makeMove({
+            from: m.from,
+            to: m.to,
+            promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+          })
+          if (made) lastMove = made
+        }
+        redoStackRef.current = remaining
+        setRedoStack(remaining)
+        if (lastMove) setDisplayedMove({ from: lastMove.from, to: lastMove.to })
+      }
+      setSelectedSquare(null)
+      syncState()
+    },
+    [engine, syncState]
+  )
+
   const reset = useCallback(() => {
     engine.reset()
     setDisplayedMove(null)
@@ -235,6 +328,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     // Don't clear selection on drag end - let onPieceDrop handle it
   }, [])
 
+  const displayedPly = history.length
   const canGoBack = history.length > 0
   const canGoForward = redoStack.length > 0
 
@@ -245,6 +339,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     displayedMove,
     selectedSquare,
     legalMoves,
+    displayedPly,
     canGoBack,
     canGoForward,
     makeMove,
@@ -255,6 +350,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     loadPGN,
     goPrev,
     goNext,
+    goFirst,
+    goLast,
+    goToPly,
     onPieceDrop,
     onSquareClick,
     onPieceDragBegin,
