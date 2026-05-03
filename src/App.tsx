@@ -15,7 +15,7 @@ function App() {
     fen,
     gameState,
     history,
-    lastMove,
+    displayedMove,
     selectedSquare,
     legalMoves,
     onPieceDrop,
@@ -113,7 +113,7 @@ function App() {
         darkSquareColor={SQUARE_COLORS[colorScheme].dark}
         selectedSquare={selectedSquare}
         legalMoves={legalMoves}
-        lastMove={lastMove}
+        lastMove={displayedMove}
         onPieceDrop={onPieceDrop}
         onSquareClick={onSquareClick}
         onPieceDragBegin={onPieceDragBegin}

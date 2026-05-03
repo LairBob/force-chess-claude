@@ -10,7 +10,7 @@ interface UseChessGameReturn {
   fen: string
   gameState: GameState
   history: Move[]
-  lastMove: { from: Square; to: Square } | null
+  displayedMove: { from: Square; to: Square } | null
   selectedSquare: Square | null
   legalMoves: Square[]
 
@@ -34,7 +34,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const [fen, setFEN] = useState(() => engine.getFEN())
   const [gameState, setGameState] = useState<GameState>(() => engine.getGameState())
   const [history, setHistory] = useState<Move[]>([])
-  const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null)
+  const [displayedMove, setDisplayedMove] = useState<{ from: Square; to: Square } | null>(null)
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
 
   // `fen` is intentionally in the deps: legal moves depend on the engine's
@@ -55,7 +55,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (from: Square, to: Square, promotion?: string): boolean => {
       const move = engine.makeMove({ from, to, promotion: promotion as 'q' | 'r' | 'b' | 'n' })
       if (move) {
-        setLastMove({ from, to })
+        setDisplayedMove({ from, to })
         setSelectedSquare(null)
         syncState()
         return true
@@ -76,9 +76,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
       const newHistory = engine.getHistory()
       if (newHistory.length > 0) {
         const prevMove = newHistory[newHistory.length - 1]
-        setLastMove({ from: prevMove.from, to: prevMove.to })
+        setDisplayedMove({ from: prevMove.from, to: prevMove.to })
       } else {
-        setLastMove(null)
+        setDisplayedMove(null)
       }
       setSelectedSquare(null)
       syncState()
@@ -89,7 +89,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
 
   const reset = useCallback(() => {
     engine.reset()
-    setLastMove(null)
+    setDisplayedMove(null)
     setSelectedSquare(null)
     syncState()
   }, [engine, syncState])
@@ -98,7 +98,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (newFEN: string): boolean => {
       const success = engine.loadFEN(newFEN)
       if (success) {
-        setLastMove(null)
+        setDisplayedMove(null)
         setSelectedSquare(null)
         syncState()
       }
@@ -114,9 +114,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
         const newHistory = engine.getHistory()
         if (newHistory.length > 0) {
           const lastMoveInHistory = newHistory[newHistory.length - 1]
-          setLastMove({ from: lastMoveInHistory.from, to: lastMoveInHistory.to })
+          setDisplayedMove({ from: lastMoveInHistory.from, to: lastMoveInHistory.to })
         } else {
-          setLastMove(null)
+          setDisplayedMove(null)
         }
         setSelectedSquare(null)
         syncState()
@@ -193,7 +193,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     fen,
     gameState,
     history,
-    lastMove,
+    displayedMove,
     selectedSquare,
     legalMoves,
     makeMove,

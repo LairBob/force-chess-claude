@@ -21,7 +21,7 @@ describe('useChessGame Hook', () => {
 
     it('should start with no last move', () => {
       const { result } = renderHook(() => useChessGame())
-      expect(result.current.lastMove).toBeNull()
+      expect(result.current.displayedMove).toBeNull()
     })
 
     it('should start with no selected square', () => {
@@ -75,7 +75,7 @@ describe('useChessGame Hook', () => {
         result.current.makeMove('e2', 'e4')
       })
 
-      expect(result.current.lastMove).toEqual({ from: 'e2', to: 'e4' })
+      expect(result.current.displayedMove).toEqual({ from: 'e2', to: 'e4' })
     })
 
     it('should clear selectedSquare after making a move', () => {
@@ -170,7 +170,7 @@ describe('useChessGame Hook', () => {
         result.current.undoMove()
       })
 
-      expect(result.current.lastMove).toEqual({ from: 'e2', to: 'e4' })
+      expect(result.current.displayedMove).toEqual({ from: 'e2', to: 'e4' })
     })
 
     it('should clear lastMove when undoing first move', () => {
@@ -184,7 +184,7 @@ describe('useChessGame Hook', () => {
         result.current.undoMove()
       })
 
-      expect(result.current.lastMove).toBeNull()
+      expect(result.current.displayedMove).toBeNull()
     })
   })
 
@@ -203,7 +203,7 @@ describe('useChessGame Hook', () => {
 
       expect(result.current.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
       expect(result.current.history).toHaveLength(0)
-      expect(result.current.lastMove).toBeNull()
+      expect(result.current.displayedMove).toBeNull()
       expect(result.current.selectedSquare).toBeNull()
     })
   })
@@ -241,7 +241,7 @@ describe('useChessGame Hook', () => {
       })
 
       expect(result.current.history).toHaveLength(3)
-      expect(result.current.lastMove).toEqual({ from: 'g1', to: 'f3' })
+      expect(result.current.displayedMove).toEqual({ from: 'g1', to: 'f3' })
     })
   })
 
