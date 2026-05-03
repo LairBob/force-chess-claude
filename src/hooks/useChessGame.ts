@@ -138,7 +138,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   }, [engine, syncState])
 
   const goFirst = useCallback(() => {
-    // Pop moves off the engine until back at ply 0; collect them in order.
+    if (engine.getHistory().length === 0) return
     const newlyUndone: Move[] = []
     let undone = engine.undoMove()
     while (undone) {

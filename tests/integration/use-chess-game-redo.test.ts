@@ -3,6 +3,18 @@ import { renderHook, act } from '@testing-library/react'
 import { useChessGame } from '../../src/hooks/useChessGame'
 
 describe('useChessGame navigation', () => {
+  function playFiveMoves(
+    result: ReturnType<typeof renderHook<ReturnType<typeof useChessGame>, void>>['result']
+  ) {
+    act(() => {
+      result.current.makeMove('e2', 'e4')
+      result.current.makeMove('e7', 'e5')
+      result.current.makeMove('g1', 'f3')
+      result.current.makeMove('b8', 'c6')
+      result.current.makeMove('f1', 'b5')
+    })
+  }
+
   describe('goPrev', () => {
     it('undoes the last move and pushes onto redoStack', () => {
       const { result } = renderHook(() => useChessGame())
@@ -94,18 +106,6 @@ describe('useChessGame navigation', () => {
     })
   })
 
-  function playFiveMoves(
-    result: ReturnType<typeof renderHook<ReturnType<typeof useChessGame>, void>>['result']
-  ) {
-    act(() => {
-      result.current.makeMove('e2', 'e4')
-      result.current.makeMove('e7', 'e5')
-      result.current.makeMove('g1', 'f3')
-      result.current.makeMove('b8', 'c6')
-      result.current.makeMove('f1', 'b5')
-    })
-  }
-
   describe('goFirst / goLast', () => {
     it('goFirst empties history and populates redoStack with the full game', () => {
       const { result } = renderHook(() => useChessGame())
@@ -188,7 +188,7 @@ describe('useChessGame navigation', () => {
   })
 
   describe('displayedPly', () => {
-    it('equals history.length', () => {
+    it('tracks the current ply after a move', () => {
       const { result } = renderHook(() => useChessGame())
       expect(result.current.displayedPly).toBe(0)
 
