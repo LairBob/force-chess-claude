@@ -54,3 +54,79 @@ describe('HeatmapSquare — stripe rendering', () => {
     expect(container.querySelectorAll('[data-stripe][data-side="black"]')).toHaveLength(2)
   })
 })
+
+describe('HeatmapSquare — saturation logic', () => {
+  it('all stripes desaturated when N_w === N_b (all matched)', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 3, blackAttackers: 3 },
+    })
+    const allStripes = container.querySelectorAll('[data-stripe]')
+    expect(allStripes).toHaveLength(6)
+    for (const stripe of Array.from(allStripes)) {
+      expect(stripe.getAttribute('data-saturated')).toBe('false')
+    }
+  })
+
+  it('all stripes saturated when one side has 0 (no matched)', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 0, blackAttackers: 2 },
+    })
+    const blackStripes = container.querySelectorAll('[data-stripe][data-side="black"]')
+    expect(blackStripes).toHaveLength(2)
+    for (const stripe of Array.from(blackStripes)) {
+      expect(stripe.getAttribute('data-saturated')).toBe('true')
+    }
+  })
+
+  it('matched-offset: 5v2 has 2 desat + 3 sat on white side, 2 desat on black side', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 5, blackAttackers: 2 },
+    })
+    const white = Array.from(container.querySelectorAll('[data-stripe][data-side="white"]'))
+    const black = Array.from(container.querySelectorAll('[data-stripe][data-side="black"]'))
+    expect(white.filter((s) => s.getAttribute('data-saturated') === 'false')).toHaveLength(2)
+    expect(white.filter((s) => s.getAttribute('data-saturated') === 'true')).toHaveLength(3)
+    expect(black.filter((s) => s.getAttribute('data-saturated') === 'false')).toHaveLength(2)
+    expect(black.filter((s) => s.getAttribute('data-saturated') === 'true')).toHaveLength(0)
+  })
+
+  it('sqrt curve: surplus=1 produces saturation magnitude sqrt(1/5) ≈ 0.447', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 1, blackAttackers: 0 },
+    })
+    const stripe = container.querySelector(
+      '[data-stripe][data-side="white"][data-saturated="true"]'
+    )
+    expect(stripe).not.toBeNull()
+    const mag = stripe!.getAttribute('data-saturation-magnitude')
+    expect(mag).not.toBeNull()
+    expect(parseFloat(mag!)).toBeCloseTo(Math.sqrt(1 / 5), 3)
+  })
+
+  it('sqrt curve: surplus=5 saturates at 1.0', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 5, blackAttackers: 0 },
+    })
+    const stripes = Array.from(
+      container.querySelectorAll('[data-stripe][data-side="white"][data-saturated="true"]')
+    )
+    expect(stripes.length).toBeGreaterThan(0)
+    for (const stripe of stripes) {
+      const mag = stripe.getAttribute('data-saturation-magnitude')
+      expect(parseFloat(mag!)).toBeCloseTo(1.0, 3)
+    }
+  })
+
+  it('sqrt curve: surplus=10 clamps at 1.0', () => {
+    const { container } = renderSquare({
+      control: { whiteAttackers: 10, blackAttackers: 0 },
+    })
+    const stripes = Array.from(
+      container.querySelectorAll('[data-stripe][data-side="white"][data-saturated="true"]')
+    )
+    for (const stripe of stripes) {
+      const mag = stripe.getAttribute('data-saturation-magnitude')
+      expect(parseFloat(mag!)).toBeCloseTo(1.0, 3)
+    }
+  })
+})
