@@ -92,3 +92,47 @@ describe('analyze() — pseudo-legal counts', () => {
     expect(map.inertPieceSquares.size).toBe(0)
   })
 })
+
+describe('analyze() — inert (absolute pin) detection', () => {
+  it('flags an absolutely-pinned knight in inertPieceSquares', () => {
+    // White knight e3 pinned by black rook e5 along the e-file against white king e1.
+    // No white pieces between knight and king; removing knight exposes king to rook.
+    const fen = '4k3/8/8/4r3/8/4N3/8/4K3 w - - 0 1'
+    const map = analyze(fen)
+    expect(map.inertPieceSquares.has('e3')).toBe(true)
+  })
+
+  it('does NOT flag a knight that is not pinned', () => {
+    // Black rook moved to a5 — different rank, different file, no pin.
+    const fen = '4k3/8/8/r7/8/4N3/8/4K3 w - - 0 1'
+    const map = analyze(fen)
+    expect(map.inertPieceSquares.has('e3')).toBe(false)
+  })
+
+  it('does NOT flag the kings (kings are never pinned)', () => {
+    const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    const map = analyze(STARTING_FEN)
+    expect(map.inertPieceSquares.has('e1')).toBe(false)
+    expect(map.inertPieceSquares.has('e8')).toBe(false)
+  })
+
+  it('does NOT flag a piece pinned only against the queen (relative pin)', () => {
+    // White knight d4 is on the a1-h8 diagonal between black bishop g7 and white queen a1.
+    // The white king is on e1, NOT on the pin line. Removing the knight exposes the
+    // queen, not the king. Knight is RELATIVELY pinned and the analyzer must NOT mark
+    // it as inert (Phase 4 inert = absolute pin against the king only).
+    const fen = '4k3/6b1/8/8/3N4/8/8/Q3K3 w - - 0 1'
+    const map = analyze(fen)
+    expect(map.inertPieceSquares.has('d4')).toBe(false)
+  })
+
+  it("flags both colors' pinned pieces in the same position", () => {
+    // - White knight e3 pinned by black rook e5 along the e-file (white king e1).
+    // - Black knight e6 pinned by white bishop b3 along the b3-g8 diagonal (black king g8).
+    // Two absolute pins, two different sliders, two different geometries.
+    const fen = '6k1/8/4n3/4r3/8/1B2N3/8/4K3 w - - 0 1'
+    const map = analyze(fen)
+    expect(map.inertPieceSquares.has('e3')).toBe(true)
+    expect(map.inertPieceSquares.has('e6')).toBe(true)
+  })
+})
