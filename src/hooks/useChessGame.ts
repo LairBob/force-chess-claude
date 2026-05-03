@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { ChessEngine, type Move, type GameState, type Square } from '../modules/chess-engine'
 
 interface UseChessGameOptions {
@@ -13,6 +13,8 @@ interface UseChessGameReturn {
   displayedMove: { from: Square; to: Square } | null
   selectedSquare: Square | null
   legalMoves: Square[]
+  canGoBack: boolean
+  canGoForward: boolean
 
   // Actions
   makeMove: (from: Square, to: Square, promotion?: string) => boolean
@@ -21,6 +23,8 @@ interface UseChessGameReturn {
   reset: () => void
   loadFEN: (fen: string) => boolean
   loadPGN: (pgn: string) => boolean
+  goPrev: () => void
+  goNext: () => void
 
   // Board interaction helpers
   onPieceDrop: (source: Square, target: Square, piece: string) => boolean
@@ -36,6 +40,10 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const [history, setHistory] = useState<Move[]>([])
   const [displayedMove, setDisplayedMove] = useState<{ from: Square; to: Square } | null>(null)
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
+  const [redoStack, setRedoStack] = useState<Move[]>([])
+  // redoStackRef mirrors redoStack so that goNext can read the latest value
+  // synchronously even when called in the same React batch as goPrev.
+  const redoStackRef = useRef<Move[]>([])
 
   // `fen` is intentionally in the deps: legal moves depend on the engine's
   // mutable state, and `fen` changes whenever that state advances.
@@ -85,6 +93,44 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
       return true
     }
     return false
+  }, [engine, syncState])
+
+  const goPrev = useCallback(() => {
+    const undone = engine.undoMove()
+    if (!undone) return
+    const nextStack = [...redoStackRef.current, undone]
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    const newHistory = engine.getHistory()
+    setDisplayedMove(
+      newHistory.length > 0
+        ? { from: newHistory[newHistory.length - 1].from, to: newHistory[newHistory.length - 1].to }
+        : null
+    )
+    setSelectedSquare(null)
+    syncState()
+  }, [engine, syncState])
+
+  // NOTE: Never call engine.* or setX() inside a setState updater function —
+  // React 19 StrictMode can invoke updaters twice, which would double-apply
+  // moves to the engine. Always do the engine mutation first (synchronously),
+  // then call the setters with plain values or pure functional updates.
+  const goNext = useCallback(() => {
+    const current = redoStackRef.current
+    if (current.length === 0) return
+    const next = current[current.length - 1]
+    const move = engine.makeMove({
+      from: next.from,
+      to: next.to,
+      promotion: next.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+    })
+    if (!move) return
+    const nextStack = current.slice(0, -1)
+    redoStackRef.current = nextStack
+    setRedoStack(nextStack)
+    setDisplayedMove({ from: move.from, to: move.to })
+    setSelectedSquare(null)
+    syncState()
   }, [engine, syncState])
 
   const reset = useCallback(() => {
@@ -189,6 +235,9 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     // Don't clear selection on drag end - let onPieceDrop handle it
   }, [])
 
+  const canGoBack = history.length > 0
+  const canGoForward = redoStack.length > 0
+
   return {
     fen,
     gameState,
@@ -196,12 +245,16 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     displayedMove,
     selectedSquare,
     legalMoves,
+    canGoBack,
+    canGoForward,
     makeMove,
     selectSquare,
     undoMove,
     reset,
     loadFEN,
     loadPGN,
+    goPrev,
+    goNext,
     onPieceDrop,
     onSquareClick,
     onPieceDragBegin,
