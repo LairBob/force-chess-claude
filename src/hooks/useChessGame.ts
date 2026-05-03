@@ -30,6 +30,10 @@ interface UseChessGameReturn {
   goLast: () => void
   goToPly: (ply: number) => void
 
+  // Accessors
+  getFEN: () => string
+  getPGN: () => string
+
   // Board interaction helpers
   onPieceDrop: (source: Square, target: Square, piece: string) => boolean
   onSquareClick: (square: Square) => void
@@ -228,6 +232,33 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     [engine, syncState]
   )
 
+  const getFEN = useCallback(() => engine.getFEN(), [engine])
+
+  const getPGN = useCallback(() => {
+    // chess.js's pgn() reflects only what's currently in the engine. When the user
+    // has navigated back, the engine is at the displayed ply, not the end of the
+    // game — so a naive engine.getPGN() would only return moves up to the displayed
+    // ply. To return the canonical full-game PGN, temporarily replay the redoStack
+    // forward, capture pgn(), then unwind to restore the engine to the displayed ply.
+    const stackCopy = [...redoStackRef.current]
+    const replayed: Move[] = []
+    while (stackCopy.length > 0) {
+      const m = stackCopy.pop()!
+      const made = engine.makeMove({
+        from: m.from,
+        to: m.to,
+        promotion: m.promotion as 'q' | 'r' | 'b' | 'n' | undefined,
+      })
+      if (made) replayed.push(made)
+    }
+    const pgn = engine.getPGN()
+    // Restore engine to original displayed ply
+    for (let i = 0; i < replayed.length; i++) {
+      engine.undoMove()
+    }
+    return pgn
+  }, [engine])
+
   const reset = useCallback(() => {
     engine.reset()
     redoStackRef.current = []
@@ -365,6 +396,8 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     goFirst,
     goLast,
     goToPly,
+    getFEN,
+    getPGN,
     onPieceDrop,
     onSquareClick,
     onPieceDragBegin,

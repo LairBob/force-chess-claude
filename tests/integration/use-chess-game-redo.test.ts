@@ -221,6 +221,42 @@ describe('useChessGame navigation', () => {
     })
   })
 
+  describe('getFEN / getPGN', () => {
+    it('getFEN reflects the displayed ply, not the latest position', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      act(() => {
+        result.current.makeMove('e2', 'e4')
+        result.current.makeMove('e7', 'e5')
+      })
+      const finalFen = result.current.getFEN()
+
+      act(() => {
+        result.current.goPrev()
+      })
+      const oneMoveFen = result.current.getFEN()
+
+      expect(oneMoveFen).not.toBe(finalFen)
+      expect(oneMoveFen).toContain(' b ')
+    })
+
+    it('getPGN returns the full canonical game regardless of displayed ply', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      act(() => {
+        result.current.makeMove('e2', 'e4')
+        result.current.makeMove('e7', 'e5')
+        result.current.makeMove('g1', 'f3')
+        result.current.goToPly(1) // navigate back to after 1.e4
+      })
+
+      const pgn = result.current.getPGN()
+      expect(pgn).toContain('1. e4')
+      expect(pgn).toContain('e5')
+      expect(pgn).toContain('Nf3')
+    })
+  })
+
   describe('load semantics', () => {
     it('loadFEN clears redoStack', () => {
       const { result } = renderHook(() => useChessGame())
