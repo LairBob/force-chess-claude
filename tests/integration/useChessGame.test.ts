@@ -232,7 +232,7 @@ describe('useChessGame Hook', () => {
   })
 
   describe('Load PGN', () => {
-    it('should load a valid PGN', () => {
+    it('should load a valid PGN and land at ply 0 with redoStack ready', () => {
       const { result } = renderHook(() => useChessGame())
 
       act(() => {
@@ -240,8 +240,10 @@ describe('useChessGame Hook', () => {
         expect(success).toBe(true)
       })
 
-      expect(result.current.history).toHaveLength(3)
-      expect(result.current.displayedMove).toEqual({ from: 'g1', to: 'f3' })
+      expect(result.current.history).toHaveLength(0)
+      expect(result.current.displayedMove).toBeNull()
+      expect(result.current.canGoForward).toBe(true)
+      expect(result.current.canGoBack).toBe(false)
     })
   })
 

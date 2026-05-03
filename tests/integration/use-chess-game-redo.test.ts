@@ -198,4 +198,82 @@ describe('useChessGame navigation', () => {
       expect(result.current.displayedPly).toBe(1)
     })
   })
+
+  describe('truncate-on-move', () => {
+    it('makeMove clears redoStack when not at the latest ply', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      act(() => {
+        result.current.makeMove('e2', 'e4')
+        result.current.makeMove('e7', 'e5')
+        result.current.makeMove('g1', 'f3')
+        result.current.goToPly(1)
+      })
+      expect(result.current.canGoForward).toBe(true)
+
+      act(() => {
+        result.current.makeMove('d7', 'd5')
+      })
+
+      expect(result.current.history).toHaveLength(2)
+      expect(result.current.history[1].san).toBe('d5')
+      expect(result.current.canGoForward).toBe(false)
+    })
+  })
+
+  describe('load semantics', () => {
+    it('loadFEN clears redoStack', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      act(() => {
+        result.current.makeMove('e2', 'e4')
+        result.current.goPrev()
+      })
+      expect(result.current.canGoForward).toBe(true)
+
+      act(() => {
+        result.current.loadFEN('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+      })
+
+      expect(result.current.canGoForward).toBe(false)
+      expect(result.current.canGoBack).toBe(false)
+    })
+
+    it('loadPGN populates redoStack and lands at ply 0', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      const pgn = '1. e4 e5 2. Nf3 Nc6 3. Bb5'
+      act(() => {
+        const ok = result.current.loadPGN(pgn)
+        expect(ok).toBe(true)
+      })
+
+      expect(result.current.displayedPly).toBe(0)
+      expect(result.current.canGoForward).toBe(true)
+      expect(result.current.canGoBack).toBe(false)
+      expect(result.current.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+
+      act(() => {
+        result.current.goLast()
+      })
+      expect(result.current.history).toHaveLength(5)
+      expect(result.current.history[4].san).toBe('Bb5')
+    })
+
+    it('reset clears redoStack', () => {
+      const { result } = renderHook(() => useChessGame())
+
+      act(() => {
+        result.current.loadPGN('1. e4 e5 2. Nf3')
+      })
+      expect(result.current.canGoForward).toBe(true)
+
+      act(() => {
+        result.current.reset()
+      })
+
+      expect(result.current.canGoForward).toBe(false)
+      expect(result.current.canGoBack).toBe(false)
+    })
+  })
 })

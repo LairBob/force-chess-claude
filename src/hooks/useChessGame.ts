@@ -67,6 +67,8 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (from: Square, to: Square, promotion?: string): boolean => {
       const move = engine.makeMove({ from, to, promotion: promotion as 'q' | 'r' | 'b' | 'n' })
       if (move) {
+        redoStackRef.current = []
+        setRedoStack([])
         setDisplayedMove({ from, to })
         setSelectedSquare(null)
         syncState()
@@ -228,6 +230,8 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
 
   const reset = useCallback(() => {
     engine.reset()
+    redoStackRef.current = []
+    setRedoStack([])
     setDisplayedMove(null)
     setSelectedSquare(null)
     syncState()
@@ -237,6 +241,8 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     (newFEN: string): boolean => {
       const success = engine.loadFEN(newFEN)
       if (success) {
+        redoStackRef.current = []
+        setRedoStack([])
         setDisplayedMove(null)
         setSelectedSquare(null)
         syncState()
@@ -249,18 +255,24 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const loadPGN = useCallback(
     (pgn: string): boolean => {
       const success = engine.loadPGN(pgn)
-      if (success) {
-        const newHistory = engine.getHistory()
-        if (newHistory.length > 0) {
-          const lastMoveInHistory = newHistory[newHistory.length - 1]
-          setDisplayedMove({ from: lastMoveInHistory.from, to: lastMoveInHistory.to })
-        } else {
-          setDisplayedMove(null)
-        }
-        setSelectedSquare(null)
-        syncState()
+      if (!success) return false
+
+      const fullHistory = engine.getHistory() // engine is at the END of the game now
+      // Walk back to ply 0
+      while (engine.undoMove()) {
+        /* unwind */
       }
-      return success
+
+      // redoStack invariant: top-of-stack (last element) = next forward move. So move 1 must be
+      // the last element of the array. Reverse the history (which is move 1..N) accordingly.
+      const stack = [...fullHistory].reverse()
+
+      redoStackRef.current = stack
+      setRedoStack(stack)
+      setDisplayedMove(null)
+      setSelectedSquare(null)
+      syncState()
+      return true
     },
     [engine, syncState]
   )
