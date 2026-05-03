@@ -24,19 +24,15 @@ describe('analyze() — pseudo-legal counts', () => {
 
   it('starting position: black pawn diagonal-attack semantics', () => {
     const map = analyze(STARTING_FEN)
-    // Black pawn on e7 attacks d6 and f6. b7 attacks a6 and c6. d7 attacks c6 and e6.
-    // So d6.blackAttackers should include e7 and c7 (=2). f6.blackAttackers from e7 and g7 (=2).
-    expect(map.squares.d6.blackAttackers).toBeGreaterThanOrEqual(1)
-    expect(map.squares.f6.blackAttackers).toBeGreaterThanOrEqual(1)
+    // d6 from c7 + e7 pawns; f6 from e7 + g7 pawns + g8 knight.
+    expect(map.squares.d6.blackAttackers).toBe(2)
+    expect(map.squares.f6.blackAttackers).toBe(3)
   })
 
   it('starting position: pawns do NOT attack their forward-move squares', () => {
     const map = analyze(STARTING_FEN)
-    // e2 pawn moves to e3/e4 but does NOT *attack* those squares (diagonal-only attacks).
-    // e3 is attacked by d2 and f2 pawns diagonally — use rank-4 squares which have no
-    // diagonal attackers from rank-2 pawns.
-    // a4 is the double-push destination of a2; no white piece attacks it diagonally.
-    // e4 is the double-push destination of e2; no white piece attacks it diagonally.
+    // Pawns attack diagonally, not forward. a4 and e4 have zero white attackers because
+    // rank 3 is empty — there are no white pieces on rank 3 to attack rank 4 diagonally.
     expect(map.squares.a4.whiteAttackers).toBe(0)
     expect(map.squares.e4.whiteAttackers).toBe(0)
   })
