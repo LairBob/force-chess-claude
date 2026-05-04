@@ -2,6 +2,8 @@
 
 Browser-based chess application with a threat-visualization heatmap as the headline differentiator. Focus is educational and analytical: real-time visual feedback on board control, threat assessment, and positional strength for every square.
 
+> **For AI agents:** before starting work in this repo, read `docs/AI_COLLAB_NOTES.md` for cross-phase workflow conventions (subagent review cadence, main-push gate, Visual Companion polling, chess-FEN verification). Those conventions are durable — they apply on top of the coding conventions in this file.
+
 ## Tech Stack
 
 - React 19, TypeScript 5.9 strict, Vite 7
