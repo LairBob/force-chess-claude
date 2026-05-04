@@ -7,8 +7,8 @@ Browser-based chess application with a threat-visualization heatmap as the headl
 - React 19, TypeScript 5.9 strict, Vite 7
 - Vitest 4 + Testing Library + Playwright (chromium-only currently)
 - Tailwind 4
-- chess.js 1.4 (uses `.attackers()` for the threat analyzer in Phase 4)
-- react-chessboard 5.10 (use `squareRenderer` for Phase 4 overlay)
+- chess.js 1.4 (`.attackers()` and `.findPiece()` are used by the threat analyzer)
+- react-chessboard 5.10 (`squareRenderer` option drives the heatmap overlay; signature is `({piece, square, children}) => JSX.Element`, adapted in `ChessBoard.tsx`)
 
 ## Where things live
 
@@ -17,14 +17,20 @@ Browser-based chess application with a threat-visualization heatmap as the headl
 - `src/components/Board/` — board wrapper around react-chessboard
 - `src/components/Layout/` — app shell
 - `src/components/Controls/`, `Notation/` — Phase 3 surfaces (Header, MoveHistory)
+- `src/modules/threat-analyzer/` — Phase 4 pure analyzer (FEN → ThreatMap)
+- `src/components/Heatmap/` — Phase 4 presentational renderer (`HeatmapSquare`)
+- `src/hooks/useThreatMap.ts` — Phase 4 memoizing hook (module-level LRU)
 - `tests/unit/`, `tests/integration/`, `tests/e2e/` — vitest + playwright
-- `docs/research/*.md` — algorithm specs (especially `visualization.md`)
+- `docs/research/*.md` — background algorithm research; `visualization.md`'s color-mapping recipe is superseded by the Phase 4 spec
+- `docs/superpowers/specs/*.md` — approved feature designs (Phase 4 onward)
+- `docs/superpowers/plans/*.md` — implementation plans for those designs
 - `docs/handoffs/HANDOFF_NN.md` — phase-boundary notes (kept light)
+- `docs/AI_COLLAB_NOTES.md` — durable AI-collaboration conventions distilled from prior phases
 - `PROJECT_PROGRESS.json` — single source of truth for phase status
 
 ## Current phase
 
-Phase 3 in progress: PGN/FEN import/export and game navigation. Phase 4 is the threat-viz heatmap.
+Phase 4 (threat-visualization heatmap) is shipped on `main`. Phase 5 (Enhanced Visualization Modes) is unstarted — no spec, no plan. Phase 3's `p3-d5` (chess clock/timer) remains deferred and is the reason `PROJECT_PROGRESS.json`'s `currentPhase` still reads `"phase-3"`.
 
 ## Coding conventions
 
@@ -34,6 +40,8 @@ Phase 3 in progress: PGN/FEN import/export and game navigation. Phase 4 is the t
 - Behavior tests only — if removing a test wouldn't reduce confidence in a real failure mode, don't write it
 - Narrow commits, one logical change per commit
 - No emojis in code or commit messages unless explicitly requested
+- Test-only exports use the `__` prefix (e.g., `__resetThreatMapCacheForTests`) and must NOT appear in barrel `index.ts` files
+- Chess test positions: verify FENs against `chess.js` output (`new Chess(fen).attackers(...)`, etc.) before asserting expected counts. Mental ray-tracing produces silent off-by-one errors, especially on pawn diagonals and pin lines that pass through occupied squares
 
 ## Verification
 
